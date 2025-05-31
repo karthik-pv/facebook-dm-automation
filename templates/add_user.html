@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add Facebook Profile URL</title>
+  </head>
+  <body>
+    <h1>Add Facebook Profile URL</h1>
+
+    <form method="POST" action="{{ url_for('add_user_route') }}">
+      <input
+        type="text"
+        name="profile_url"
+        placeholder="Enter Facebook Profile URL"
+        required
+      />
+      <button type="submit">Add URL</button>
+    </form>
+
+    <h2>All Stored URLs:</h2>
+    <ul>
+      {% for url in urls %}
+      <li>{{ url }}</li>
+      {% else %}
+      <li>No URLs found.</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
