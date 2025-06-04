@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Message History</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .message-card {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #4caf50;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .message-meta {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .recipient-badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+      }
+
+      .all-users {
+        background-color: #2196f3;
+      }
+
+      .group-specific {
+        background-color: #ff9800;
+      }
+
+      .timestamp {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .message-content {
+        background-color: white;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .no-history {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 40px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+      }
+
+      .navigation {
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      .navigation a {
+        color: #4caf50;
+        text-decoration: none;
+        margin: 0 15px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: 2px solid #4caf50;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+
+      .navigation a:hover {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .stats {
+        background-color: #e8f5e8;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: bold;
+        color: #2e7d32;
+      }
+
+      @media (max-width: 600px) {
+        .message-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .message-meta {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📨 Message History</h1>
+
+      {% if history %}
+      <div class="stats">Total Messages Sent: {{ history|length }}</div>
+
+      {% for message in history %}
+      <div class="message-card">
+        <div class="message-header">
+          <div class="message-meta">
+            {% if message.sent_to_all %}
+            <span class="recipient-badge all-users">📢 Sent to All Users</span>
+            {% else %}
+            <span class="recipient-badge group-specific">
+              👥 Group: {{ message.group_name }}
+            </span>
+            {% endif %}
+          </div>
+          <div class="timestamp">
+            {% if message.created_at %} {{ message.created_at[:19].replace('T',
+            ' ') }} {% else %} Recent {% endif %}
+          </div>
+        </div>
+
+        <div class="message-content">{{ message.message }}</div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="no-history">
+        <h3>No messages sent yet</h3>
+        <p>
+          Your message history will appear here once you start sending messages.
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="navigation">
+        <a href="{{ url_for('home_page') }}">← Back to Home</a>
+        <a href="{{ url_for('send_facebook_messages_route') }}"
+          >Send New Message</a
+        >
+        <a href="{{ url_for('groups_route') }}">Manage Groups</a>
+      </div>
+    </div>
+  </body>
+</html>
