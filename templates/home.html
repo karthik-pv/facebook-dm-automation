@@ -4,23 +4,30 @@
     <title>Home Page</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        background-color: #fafafa;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
         text-align: center;
         padding-top: 100px;
       }
+
+      h1 {
+        color: #333;
+      }
+
       .button {
         background-color: #4caf50;
         border: none;
         color: white;
         padding: 15px 30px;
-        text-align: center;
         font-size: 16px;
-        margin: 20px;
+        margin: 15px;
         cursor: pointer;
         border-radius: 8px;
         text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s ease;
       }
+
       .button:hover {
         background-color: #45a049;
       }
@@ -28,11 +35,11 @@
   </head>
   <body>
     <h1>Welcome</h1>
-    <a class="button" href="{{ url_for('send_facebook_messages_route') }}"
-      >Send Facebook Messages</a
-    >
-    <a class="button" href="{{ url_for('add_user_route') }}"
-      >Add Facebook User</a
-    >
+    <a class="button" href="{{ url_for('send_facebook_messages_route') }}">
+      📩 Send Facebook Messages
+    </a>
+    <a class="button" href="{{ url_for('add_user_route') }}">
+      ➕ Add Facebook User
+    </a>
   </body>
 </html>

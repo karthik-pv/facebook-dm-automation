@@ -2,19 +2,62 @@
 <html>
   <head>
     <title>Send Facebook Message</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 60px;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      form {
+        margin-top: 30px;
+        width: 80%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      textarea {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        resize: vertical;
+      }
+
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
   </head>
   <body>
     <h1>Send Message to All Facebook Profiles</h1>
     <form method="POST">
-      <label for="message">Enter your message:</label><br />
-      <textarea
-        id="message"
-        name="message"
-        rows="4"
-        cols="50"
-        required
-      ></textarea
-      ><br /><br />
+      <label for="message">Enter your message:</label>
+      <textarea id="message" name="message" rows="5" required></textarea>
       <button type="submit">Send Message</button>
     </form>
   </body>

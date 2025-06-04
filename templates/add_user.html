@@ -3,10 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <title>Add Facebook Profile URL</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 50px;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      form {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      input[type="text"] {
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      h2 {
+        margin-top: 40px;
+        color: #555;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        width: 80%;
+        max-width: 500px;
+      }
+
+      li {
+        background-color: white;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+    </style>
   </head>
   <body>
     <h1>Add Facebook Profile URL</h1>
-
     <form method="POST" action="{{ url_for('add_user_route') }}">
       <input
         type="text"
@@ -17,7 +80,7 @@
       <button type="submit">Add URL</button>
     </form>
 
-    <h2>All Stored URLs:</h2>
+    <h2>All Stored URLs</h2>
     <ul>
       {% for url in urls %}
       <li>{{ url }}</li>
