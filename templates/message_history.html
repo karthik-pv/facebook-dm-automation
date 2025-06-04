@@ -2,131 +2,362 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Message History</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Message History - Automation Hub</title>
     <style>
-      body {
-        font-family: "Segoe UI", sans-serif;
-        background-color: #f4f4f4;
-        padding: 20px;
+      * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0c0c0c 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        min-height: 100vh;
+        color: #ffffff;
+        padding: 20px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            rgba(120, 119, 198, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(255, 119, 198, 0.08) 0%,
+            transparent 50%
+          );
+        z-index: -1;
       }
 
       .container {
-        max-width: 1000px;
+        max-width: 1200px;
         margin: 0 auto;
-        background-color: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
       }
 
-      h1 {
-        color: #333;
+      .header {
         text-align: center;
+        margin-bottom: 40px;
+        animation: fadeInDown 0.8s ease-out;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+        text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .header .subtitle {
+        font-size: 1.2rem;
+        color: #a0a0a0;
         margin-bottom: 30px;
       }
 
+      .stats {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        margin-bottom: 40px;
+        animation: slideInUp 0.8s ease-out 0.2s both;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stats::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        background-size: 200% 100%;
+        animation: gradientShift 3s ease-in-out infinite;
+      }
+
+      .stats-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #a0a0a0;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .messages-grid {
+        display: grid;
+        gap: 25px;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
       .message-card {
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 15px;
-        border-left: 4px solid #4caf50;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: slideInUp 0.6s ease-out var(--delay, 0s) both;
+      }
+
+      .message-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+          0 0 30px rgba(102, 126, 234, 0.2);
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+
+      .message-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.03),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .message-card:hover::before {
+        left: 100%;
       }
 
       .message-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
+        align-items: flex-start;
+        margin-bottom: 20px;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 15px;
       }
 
       .message-meta {
         display: flex;
-        gap: 20px;
         align-items: center;
+        gap: 15px;
         flex-wrap: wrap;
       }
 
       .recipient-badge {
-        padding: 5px 12px;
-        border-radius: 15px;
-        font-size: 14px;
-        font-weight: bold;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
       }
 
       .all-users {
-        background-color: #2196f3;
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
       }
 
       .group-specific {
-        background-color: #ff9800;
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
       }
 
       .timestamp {
-        color: #666;
-        font-size: 14px;
+        color: #a0a0a0;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
       }
 
       .message-content {
-        background-color: white;
-        padding: 15px;
-        border-radius: 6px;
-        border: 1px solid #e0e0e0;
-        line-height: 1.6;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        line-height: 1.7;
         white-space: pre-wrap;
         word-wrap: break-word;
+        color: #e0e0e0;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .message-content::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 2px;
       }
 
       .no-history {
         text-align: center;
-        color: #666;
-        font-style: italic;
-        padding: 40px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
+        color: #a0a0a0;
+        padding: 80px 40px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
+      .no-history h3 {
+        font-size: 1.8rem;
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      .no-history p {
+        font-size: 1.1rem;
+        line-height: 1.6;
       }
 
       .navigation {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease-out 0.6s both;
       }
 
       .navigation a {
-        color: #4caf50;
+        color: #a0a0a0;
         text-decoration: none;
-        margin: 0 15px;
-        font-weight: bold;
-        padding: 10px 20px;
-        border: 2px solid #4caf50;
-        border-radius: 6px;
+        font-weight: 600;
+        padding: 15px 25px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
         transition: all 0.3s ease;
-        display: inline-block;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
 
       .navigation a:hover {
-        background-color: #4caf50;
-        color: white;
+        color: #667eea;
+        border-color: rgba(102, 126, 234, 0.3);
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
       }
 
-      .stats {
-        background-color: #e8f5e8;
-        padding: 15px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: bold;
-        color: #2e7d32;
+      /* Animations */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
-      @media (max-width: 600px) {
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .header h1 {
+          font-size: 2.2rem;
+        }
+
         .message-header {
           flex-direction: column;
           align-items: flex-start;
+          gap: 15px;
         }
 
         .message-meta {
@@ -134,51 +365,159 @@
           align-items: flex-start;
           gap: 10px;
         }
+
+        .navigation {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .stats-content {
+          gap: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header h1 {
+          font-size: 1.8rem;
+        }
+
+        .message-card {
+          padding: 20px;
+        }
+
+        .stats {
+          padding: 20px;
+        }
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2, #667eea);
+      }
+
+      /* Message card staggered animation */
+      .message-card:nth-child(1) {
+        --delay: 0.1s;
+      }
+      .message-card:nth-child(2) {
+        --delay: 0.2s;
+      }
+      .message-card:nth-child(3) {
+        --delay: 0.3s;
+      }
+      .message-card:nth-child(4) {
+        --delay: 0.4s;
+      }
+      .message-card:nth-child(5) {
+        --delay: 0.5s;
+      }
+      .message-card:nth-child(n + 6) {
+        --delay: 0.6s;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>📨 Message History</h1>
+      <div class="header">
+        <h1>📨 Message History</h1>
+        <p class="subtitle">Track your messaging campaigns and performance</p>
+      </div>
 
       {% if history %}
-      <div class="stats">Total Messages Sent: {{ history|length }}</div>
-
-      {% for message in history %}
-      <div class="message-card">
-        <div class="message-header">
-          <div class="message-meta">
-            {% if message.sent_to_all %}
-            <span class="recipient-badge all-users">📢 Sent to All Users</span>
-            {% else %}
-            <span class="recipient-badge group-specific">
-              👥 Group: {{ message.group_name }}
-            </span>
-            {% endif %}
+      <div class="stats">
+        <div class="stats-content">
+          <div class="stat-item">
+            <span class="stat-number">{{ history|length }}</span>
+            <div class="stat-label">Total Messages</div>
           </div>
-          <div class="timestamp">
-            {% if message.created_at %} {{ message.created_at[:19].replace('T',
-            ' ') }} {% else %} Recent {% endif %}
+          <div class="stat-item">
+            <span class="stat-number"
+              >{{ history|selectattr('sent_to_all')|list|length }}</span
+            >
+            <div class="stat-label">Broadcast Messages</div>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"
+              >{{ (history|length) -
+              (history|selectattr('sent_to_all')|list|length) }}</span
+            >
+            <div class="stat-label">Group Messages</div>
           </div>
         </div>
-
-        <div class="message-content">{{ message.message }}</div>
       </div>
-      {% endfor %} {% else %}
+
+      <div class="messages-grid">
+        {% for message in history %}
+        <div class="message-card">
+          <div class="message-header">
+            <div class="message-meta">
+              {% if message.sent_to_all %}
+              <span class="recipient-badge all-users">
+                <span>📢</span>
+                <span>Broadcast to All Users</span>
+              </span>
+              {% else %}
+              <span class="recipient-badge group-specific">
+                <span>👥</span>
+                <span>{{ message.group_name }}</span>
+              </span>
+              {% endif %}
+            </div>
+            <div class="timestamp">
+              <span>🕐</span>
+              {% if message.created_at %} {{
+              message.created_at[:19].replace('T', ' ') }} {% else %} Recent {%
+              endif %}
+            </div>
+          </div>
+
+          <div class="message-content">{{ message.message }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
       <div class="no-history">
-        <h3>No messages sent yet</h3>
+        <h3>🚀 Ready to Start?</h3>
         <p>
-          Your message history will appear here once you start sending messages.
+          Your message history will appear here once you begin sending
+          campaigns.<br />
+          Start by creating your first message to see the magic happen!
         </p>
       </div>
       {% endif %}
 
       <div class="navigation">
-        <a href="{{ url_for('home_page') }}">← Back to Home</a>
-        <a href="{{ url_for('send_facebook_messages_route') }}"
-          >Send New Message</a
-        >
-        <a href="{{ url_for('groups_route') }}">Manage Groups</a>
+        <a href="{{ url_for('home_page') }}">
+          <span>🏠</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('send_facebook_messages_route') }}">
+          <span>📩</span>
+          <span>Send Message</span>
+        </a>
+        <a href="{{ url_for('groups_route') }}">
+          <span>👥</span>
+          <span>Manage Groups</span>
+        </a>
+        <a href="{{ url_for('add_user_route') }}">
+          <span>➕</span>
+          <span>Add Users</span>
+        </a>
       </div>
     </div>
   </body>

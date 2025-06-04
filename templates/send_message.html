@@ -2,128 +2,411 @@
 <html>
   <head>
     <title>Send Facebook Message</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-      body {
-        font-family: "Segoe UI", sans-serif;
-        background-color: #f4f4f4;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
+      * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0c0c0c 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        padding: 20px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 30% 20%,
+            rgba(120, 119, 198, 0.2) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 70% 80%,
+            rgba(255, 119, 198, 0.1) 0%,
+            transparent 50%
+          );
+        z-index: -1;
       }
 
       .container {
-        background-color: white;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 25px;
         padding: 40px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        width: 90%;
-        max-width: 600px;
+        width: 100%;
+        max-width: 650px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+          0 0 50px rgba(102, 126, 234, 0.1);
+        animation: slideInUp 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        background-size: 200% 100%;
+        animation: gradientShift 3s ease-in-out infinite;
       }
 
       h1 {
-        color: #333;
+        color: #ffffff;
         text-align: center;
+        margin-bottom: 15px;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInDown 0.8s ease-out 0.2s both;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #a0a0a0;
+        margin-bottom: 40px;
+        font-size: 1.1rem;
+        animation: fadeInDown 0.8s ease-out 0.4s both;
+      }
+
+      .info-box {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1),
+          rgba(118, 75, 162, 0.1)
+        );
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
         margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .info-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.05),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .info-box:hover::before {
+        left: 100%;
+      }
+
+      .info-box strong {
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .info-box br {
+        margin-bottom: 8px;
       }
 
       form {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 25px;
+        animation: fadeInUp 0.8s ease-out 0.8s both;
       }
 
       .form-group {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
       }
 
       label {
-        font-weight: bold;
-        color: #333;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
       }
 
       select,
       textarea {
-        padding: 12px;
-        font-size: 16px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
+        padding: 18px 20px;
+        font-size: 1rem;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        color: #ffffff;
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
       }
 
       select {
-        background-color: white;
         cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-right: 45px;
+        appearance: none;
+      }
+
+      select option {
+        background: #1a1a2e;
+        color: #ffffff;
+        padding: 10px;
       }
 
       textarea {
         resize: vertical;
-        min-height: 120px;
+        min-height: 140px;
+        line-height: 1.6;
+      }
+
+      textarea::placeholder {
+        color: #a0a0a0;
+      }
+
+      .group-info {
+        font-size: 0.9rem;
+        color: #a0a0a0;
+        font-style: italic;
+        margin-top: 8px;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        border-left: 3px solid #667eea;
+        transition: all 0.3s ease;
       }
 
       button {
-        padding: 15px 25px;
-        background-color: #4caf50;
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 15px;
         cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
+        font-size: 1.1rem;
+        font-weight: 600;
+        font-family: inherit;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        margin-top: 15px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      button:hover::before {
+        left: 100%;
       }
 
       button:hover {
-        background-color: #45a049;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4),
+          0 0 30px rgba(102, 126, 234, 0.6);
       }
 
-      .info-box {
-        background-color: #e3f2fd;
-        padding: 15px;
-        border-radius: 6px;
-        border-left: 4px solid #2196f3;
-        margin-bottom: 20px;
+      button:active {
+        transform: translateY(-1px) scale(1.01);
       }
 
       .navigation {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 35px;
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease-out 1s both;
       }
 
       .navigation a {
-        color: #4caf50;
+        color: #a0a0a0;
         text-decoration: none;
-        margin: 0 15px;
-        font-weight: bold;
+        font-weight: 500;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
       }
 
       .navigation a:hover {
-        text-decoration: underline;
+        color: #667eea;
+        border-color: rgba(102, 126, 234, 0.3);
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
       }
 
-      .group-info {
-        font-size: 14px;
-        color: #666;
-        font-style: italic;
+      /* Animations */
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          padding: 30px 25px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .navigation {
+          flex-direction: column;
+          gap: 15px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 25px 20px;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2, #667eea);
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Send Facebook Message</h1>
+      <h1>✨ Send Message</h1>
+      <p class="subtitle">Reach your audience with precision and style</p>
 
       <div class="info-box">
-        <strong>📨 Message Options:</strong>
-        <br />• Send to all users in your database <br />• Send to specific
-        groups only <br />• Messages are logged for your records
+        <strong>🎯 Messaging Options:</strong>
+        <br />• Broadcast to all users in your database <br />• Target specific
+        groups with custom messages <br />• All messages are automatically
+        logged for tracking <br />• Smart delivery with anti-spam protection
       </div>
 
       <form method="POST">
         <div class="form-group">
-          <label for="group_id">Select Recipients:</label>
+          <label for="group_id">🎯 Select Recipients:</label>
           <select id="group_id" name="group_id" onchange="updateGroupInfo()">
             <option value="all">📢 Send to All Users</option>
             {% for group in groups %}
@@ -131,27 +414,28 @@
             {% endfor %}
           </select>
           <div id="group-info" class="group-info">
-            Will send to all users in your database
+            📊 Will send to all users in your database
           </div>
         </div>
 
         <div class="form-group">
-          <label for="message">Enter your message:</label>
+          <label for="message">💬 Your Message:</label>
           <textarea
             id="message"
             name="message"
-            placeholder="Type your message here..."
+            placeholder="✍️ Craft your message here... Make it engaging and personal!"
             required
           ></textarea>
         </div>
 
-        <button type="submit">🚀 Send Message</button>
+        <button type="submit">🚀 Launch Message Campaign</button>
       </form>
 
       <div class="navigation">
-        <a href="{{ url_for('home_page') }}">← Back to Home</a>
+        <a href="{{ url_for('home_page') }}">← Dashboard</a>
         <a href="{{ url_for('groups_route') }}">Manage Groups</a>
         <a href="{{ url_for('add_user_route') }}">Add Users</a>
+        <a href="{{ url_for('message_history_route') }}">Message History</a>
       </div>
     </div>
 
@@ -161,15 +445,15 @@
         const infoDiv = document.getElementById("group-info");
 
         if (select.value === "all") {
-          infoDiv.textContent = "Will send to all users in your database";
+          infoDiv.innerHTML = "📊 Will send to all users in your database";
         } else {
           const selectedOption = select.options[select.selectedIndex];
           const groupName = selectedOption.textContent.replace("👥 ", "");
-          infoDiv.textContent = `Will send to users in group: ${groupName}`;
+          infoDiv.innerHTML = `🎯 Will send to users in group: <strong>${groupName}</strong>`;
         }
       }
 
-      // Show confirmation dialog
+      // Enhanced confirmation dialog with modern styling
       document.querySelector("form").addEventListener("submit", function (e) {
         const select = document.getElementById("group_id");
         const message = document.getElementById("message").value;
@@ -181,12 +465,37 @@
         }
 
         const confirmed = confirm(
-          `Are you sure you want to send this message to ${recipients}?\n\nMessage: "${message}"`
+          `🚀 Ready to launch your message campaign?\n\n📍 Target: ${recipients}\n💬 Message: "${message.substring(
+            0,
+            100
+          )}${
+            message.length > 100 ? "..." : ""
+          }"\n\n✅ Click OK to proceed or Cancel to review.`
         );
         if (!confirmed) {
           e.preventDefault();
         }
       });
+
+      // Add typing animation effect
+      const textarea = document.getElementById("message");
+      textarea.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+      });
+
+      // Add focus animations
+      document
+        .querySelectorAll("input, select, textarea")
+        .forEach((element) => {
+          element.addEventListener("focus", function () {
+            this.parentElement.style.transform = "scale(1.02)";
+          });
+
+          element.addEventListener("blur", function () {
+            this.parentElement.style.transform = "scale(1)";
+          });
+        });
     </script>
   </body>
 </html>
