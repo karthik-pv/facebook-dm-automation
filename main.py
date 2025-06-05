@@ -17,9 +17,14 @@ def home_page():
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user_route():
     if request.method == "POST":
-        profile_url = request.form.get("profile_url")
-        if profile_url:
-            supabase.add_url(profile_url)
+        profile_urls = request.form.get("profile_urls", "").strip()
+        if profile_urls:
+            # Split by lines and process each URL
+            urls = [url.strip() for url in profile_urls.split("\n") if url.strip()]
+            for url in urls:
+                if url:  # Only add non-empty URLs
+                    print(url)
+                    supabase.add_url(url)
             return redirect(url_for("add_user_route"))
 
     urls = supabase.get_all_urls() or []
@@ -152,6 +157,23 @@ def message_history_route():
     """Route to view message history"""
     history = supabase.get_message_history()
     return render_template("message_history.html", history=history)
+
+
+# Legacy route for backward compatibility
+@app.route("/manage-groups", methods=["GET", "POST"])
+def manage_groups():
+    return redirect(url_for("groups_route"))
+
+
+@app.route("/map-group", methods=["POST"])
+def map_group():
+    group_id = request.form.get("group_id")
+    profile_ids = request.form.getlist("profile_ids")
+    if group_id and profile_ids:
+        # This would need to be implemented in supabasePy.py if not already there
+        # supabase.map_profiles_to_group(int(group_id), list(map(int, profile_ids)))
+        pass
+    return redirect(url_for("groups_route"))
 
 
 def send_facebook_messages(message, group_id=None):
