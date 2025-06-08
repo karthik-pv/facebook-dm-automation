@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 
 from supabasePy import SupabaseClient
@@ -5,6 +6,10 @@ from supabasePy import SupabaseClient
 import threading
 
 supabase = SupabaseClient()
+
+os.environ["PLAYWRIGHT_BROWSERS_PATH"] = os.path.join(
+    os.getcwd(), "playwright-browsers"
+)
 
 app = Flask(__name__)
 
@@ -207,7 +212,7 @@ def send_facebook_messages(message, group_id=None):
         except Exception as e:
             print(f"Could not send message: {e}")
 
-    # Get profile URLs based on group selection
+    # Get profile URLs
     if group_id:
         profile_urls = supabase.get_urls_for_group(group_id)
         print(
@@ -231,17 +236,25 @@ def send_facebook_messages(message, group_id=None):
         input()
 
         for profile_url in profile_urls:
-            if "id=" in profile_url:
+            # Already a conversation URL
+            if "/messages/t/" in profile_url:
+                conversation_url = profile_url
+
+            # profile.php?id=xxx
+            elif "id=" in profile_url:
                 user_id = profile_url.split("id=")[-1]
                 conversation_url = f"https://www.facebook.com/messages/t/{user_id}/"
+
+            # username style
             else:
-                username_match = re.search(r"facebook\.com/(.+)$", profile_url)
+                username_match = re.search(r"facebook\.com/([^/?#]+)", profile_url)
                 if username_match:
                     username = username_match.group(1)
                     conversation_url = (
                         f"https://www.facebook.com/messages/t/{username}/"
                     )
                 else:
+                    print(f"Invalid URL format: {profile_url}")
                     continue
 
             send_facebook_message(page, conversation_url, message)
