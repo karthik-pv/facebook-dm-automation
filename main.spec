@@ -4,12 +4,12 @@
 block_cipher = None
 
 a = Analysis(
-    ['main.py'],  # ⬅️ UPDATED main script name
+    ['main.py'],  
     pathex=[],
     binaries=[],
     datas=[
         ('templates', 'templates'),                 
-        ('playwright-browsers', 'playwright-browsers'),  # Chromium binaries
+        ('playwright-browsers', 'playwright-browsers'),  
     ],
     hiddenimports=['playwright'],
     hookspath=[],
@@ -27,12 +27,12 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='facebook_automation',  # Final EXE name
+    name='facebook_automation', 
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,  # set to False to hide the terminal
+    console=True,  
 )
 
 coll = COLLECT(
