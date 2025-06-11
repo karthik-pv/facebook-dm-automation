@@ -106,7 +106,8 @@
       }
 
       .form-group input,
-      .form-group textarea {
+      .form-group textarea,
+      .form-group select {
         width: 100%;
         padding: 15px;
         border: 2px solid #d1d5db;
@@ -117,11 +118,16 @@
       }
 
       .form-group input:focus,
-      .form-group textarea:focus {
+      .form-group textarea:focus,
+      .form-group select:focus {
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         transform: translateY(-2px);
+      }
+
+      .form-group select {
+        cursor: pointer;
       }
 
       .form-group textarea {
@@ -265,17 +271,82 @@
 
         <div class="form-section">
           <form id="groupPostForm">
+            <!-- Post Type Selection -->
             <div class="form-group">
+              <label for="posting_type">📋 Posting Type *</label>
+              <select
+                id="posting_type"
+                name="posting_type"
+                required
+                onchange="toggleUrlInput()"
+              >
+                <option value="">Choose posting method...</option>
+                <option value="single_manual">
+                  📝 Single Group (Manual URL)
+                </option>
+                <option value="single_saved">
+                  🔗 Single Group (From Saved)
+                </option>
+                <option value="all_groups">
+                  🌟 All Saved Groups (Bulk Post)
+                </option>
+              </select>
+            </div>
+
+            <!-- Manual URL Input (shown for single_manual) -->
+            <div class="form-group" id="manual_url_group" style="display: none">
               <label for="group_url">📍 Facebook Group URL *</label>
               <input
                 type="url"
                 id="group_url"
                 name="group_url"
-                required
                 placeholder="https://www.facebook.com/groups/123456789"
                 pattern="https://www\.facebook\.com/groups/.*"
                 title="Please enter a valid Facebook group URL"
               />
+            </div>
+
+            <!-- Saved URLs Selection (shown for single_saved) -->
+            <div class="form-group" id="saved_url_group" style="display: none">
+              <label for="selected_group_url">🔗 Select Saved Group *</label>
+              <select id="selected_group_url" name="selected_group_url">
+                <option value="">Choose a saved group...</option>
+                {% for url in group_urls %}
+                <option value="{{ url }}">{{ url }}</option>
+                {% endfor %}
+              </select>
+              {% if not group_urls %}
+              <small style="color: #ef4444; margin-top: 5px; display: block">
+                No saved group URLs found.
+                <a href="/manage-group-urls" style="color: #667eea"
+                  >Add some group URLs first</a
+                >
+              </small>
+              {% endif %}
+            </div>
+
+            <!-- Bulk posting info (shown for all_groups) -->
+            <div class="form-group" id="bulk_info_group" style="display: none">
+              <div
+                style="
+                  background: #dbeafe;
+                  border: 1px solid #93c5fd;
+                  border-radius: 8px;
+                  padding: 15px;
+                  color: #1e40af;
+                "
+              >
+                <strong>🌟 Bulk Posting Mode</strong><br />
+                This will post to all {{ group_urls|length }} saved group URLs
+                with random delays between posts. {% if not group_urls %}
+                <br /><span style="color: #ef4444"
+                  >⚠️ No saved group URLs found.
+                  <a href="/manage-group-urls" style="color: #667eea"
+                    >Add some group URLs first</a
+                  ></span
+                >
+                {% endif %}
+              </div>
             </div>
 
             <div class="form-group">
@@ -312,6 +383,7 @@
 
       <div class="nav-links">
         <a href="/">🏠 Home</a>
+        <a href="/manage-group-urls">🔗 Manage Group URLs</a>
         <a href="/send-facebook-messages">💬 Send Messages</a>
         <a href="/groups">👥 Groups</a>
         <a href="/message-history">📊 History</a>
@@ -319,6 +391,37 @@
     </div>
 
     <script>
+      // Form validation and URL input toggle
+      function toggleUrlInput() {
+        const postingType = document.getElementById("posting_type").value;
+        const manualGroup = document.getElementById("manual_url_group");
+        const savedGroup = document.getElementById("saved_url_group");
+        const bulkGroup = document.getElementById("bulk_info_group");
+        const groupUrlInput = document.getElementById("group_url");
+        const selectedGroupInput =
+          document.getElementById("selected_group_url");
+
+        // Hide all groups first
+        manualGroup.style.display = "none";
+        savedGroup.style.display = "none";
+        bulkGroup.style.display = "none";
+
+        // Clear required attributes
+        groupUrlInput.required = false;
+        selectedGroupInput.required = false;
+
+        // Show appropriate group based on selection
+        if (postingType === "single_manual") {
+          manualGroup.style.display = "block";
+          groupUrlInput.required = true;
+        } else if (postingType === "single_saved") {
+          savedGroup.style.display = "block";
+          selectedGroupInput.required = true;
+        } else if (postingType === "all_groups") {
+          bulkGroup.style.display = "block";
+        }
+      }
+
       document
         .getElementById("groupPostForm")
         .addEventListener("submit", function (e) {
@@ -327,6 +430,20 @@
           const submitBtn = document.getElementById("submitBtn");
           const statusMessage = document.getElementById("statusMessage");
           const formData = new FormData(this);
+
+          // Add the selected action based on posting type
+          const postingType = document.getElementById("posting_type").value;
+          if (postingType === "all_groups") {
+            formData.append("selected_action", "all_groups");
+          } else {
+            formData.append("selected_action", "single");
+            // Set the correct group URL based on posting type
+            if (postingType === "single_saved") {
+              const selectedUrl =
+                document.getElementById("selected_group_url").value;
+              formData.set("group_url", selectedUrl);
+            }
+          }
 
           // Disable submit button
           submitBtn.disabled = true;
@@ -348,6 +465,7 @@
 
               // Reset form after success
               this.reset();
+              toggleUrlInput(); // Reset visibility
             })
             .catch((error) => {
               statusMessage.className = "status-message error";

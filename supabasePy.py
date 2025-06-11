@@ -117,3 +117,31 @@ class SupabaseClient:
             .execute()
         )
         return response.data
+
+    # Facebook Group URLs management methods
+    def add_group_url(self, url: str):
+        """Add a Facebook group URL to the database"""
+        data = {"url": url}
+        response = self.client.table("facebook_group_urls").insert(data).execute()
+        return response.data
+
+    def get_all_group_urls(self):
+        """Get all Facebook group URLs"""
+        response = self.client.table("facebook_group_urls").select("url").execute()
+        returnable = []
+        for item in response.data:
+            if "url" in item:
+                returnable.append(item["url"])
+        return returnable
+
+    def get_all_group_urls_with_ids(self):
+        """Get all Facebook group URLs with their IDs"""
+        response = self.client.table("facebook_group_urls").select("id, url").execute()
+        return response.data
+
+    def delete_group_url(self, url: str):
+        """Delete a Facebook group URL from the database"""
+        response = (
+            self.client.table("facebook_group_urls").delete().eq("url", url).execute()
+        )
+        return response.data
