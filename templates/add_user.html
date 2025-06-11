@@ -610,11 +610,12 @@ Examples:
 https://www.facebook.com/profile.php?id=123456789
 https://www.facebook.com/username
 https://m.facebook.com/username
+https://www.facebook.com/groups/123456789/user/987654321/
 facebook.com/another.username
 
 📝 One URL per line for best results
-🎯 Mix of profile IDs and usernames are supported
-⚡ The system will validate and process all URLs automatically"
+🎯 Mix of profile IDs, usernames, and group user URLs are supported
+⚡ The system will automatically extract user IDs from group URLs"
                 required
                 oninput="updateCounters()"
               ></textarea>
@@ -699,9 +700,9 @@ facebook.com/another.username
         // Count characters
         document.getElementById("charCount").textContent = text.length;
 
-        // Count valid URLs (simple regex for facebook URLs)
+        // Count valid URLs (updated regex for facebook URLs including group URLs)
         const facebookUrlRegex =
-          /(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/[^\s]+/gi;
+          /(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:[^\s\/]+|groups\/\d+\/user\/\d+)/gi;
         const urls = text.match(facebookUrlRegex) || [];
         document.getElementById("urlCount").textContent = urls.length;
 

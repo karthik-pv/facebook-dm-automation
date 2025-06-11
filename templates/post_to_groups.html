@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📝 Post to Facebook Groups - Facebook Automation</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .main-card {
+        padding: 40px;
+      }
+
+      .info-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        color: white;
+      }
+
+      .info-section h3 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .info-section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .info-section li {
+        margin: 8px 0;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .info-section li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #4ade80;
+        font-weight: bold;
+      }
+
+      .form-section {
+        background: #f8fafc;
+        border-radius: 15px;
+        padding: 30px;
+        border: 2px solid #e2e8f0;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #374151;
+        font-weight: 600;
+        font-size: 1.1em;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .form-group textarea {
+        height: 120px;
+        resize: vertical;
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .file-input-display {
+        background: #f1f5f9;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .file-input-display:hover {
+        border-color: #667eea;
+        background: #e0e7ff;
+      }
+
+      .file-input-display.has-file {
+        border-color: #10b981;
+        background: #d1fae5;
+        color: #047857;
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .nav-links {
+        padding: 20px 40px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        text-align: center;
+      }
+
+      .nav-links a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 0 15px;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #4f46e5;
+      }
+
+      .status-message {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        display: none;
+      }
+
+      .status-message.success {
+        background: #d1fae5;
+        color: #047857;
+        border: 1px solid #10b981;
+      }
+
+      .status-message.error {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #ef4444;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .header h1 {
+          font-size: 2em;
+        }
+
+        .main-card {
+          padding: 25px;
+        }
+
+        .form-section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📝 Post to Facebook Groups</h1>
+        <p>Automate posts to Facebook groups with text and media</p>
+      </div>
+
+      <div class="main-card">
+        <div class="info-section">
+          <h3>📋 How to Post to Facebook Groups</h3>
+          <ul>
+            <li>
+              Provide the Facebook group URL (e.g.,
+              https://www.facebook.com/groups/123456789)
+            </li>
+            <li>Enter your post content in the text area</li>
+            <li>
+              Optionally, provide a file path for media upload (photos/videos)
+            </li>
+            <li>Click "Start Group Posting" to begin the automation process</li>
+            <li>Log in to Facebook manually when the browser opens</li>
+          </ul>
+        </div>
+
+        <div class="form-section">
+          <form id="groupPostForm">
+            <div class="form-group">
+              <label for="group_url">📍 Facebook Group URL *</label>
+              <input
+                type="url"
+                id="group_url"
+                name="group_url"
+                required
+                placeholder="https://www.facebook.com/groups/123456789"
+                pattern="https://www\.facebook\.com/groups/.*"
+                title="Please enter a valid Facebook group URL"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="post_text">✍️ Post Content *</label>
+              <textarea
+                id="post_text"
+                name="post_text"
+                required
+                placeholder="Enter your post content here..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="media_file_path">🖼️ Media File Path (Optional)</label>
+              <input
+                type="text"
+                id="media_file_path"
+                name="media_file_path"
+                placeholder="C:\Users\YourName\Pictures\image.jpg"
+              />
+              <small style="color: #6b7280; margin-top: 5px; display: block">
+                Full path to your image or video file (leave empty if no media)
+              </small>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              🚀 Start Group Posting
+            </button>
+          </form>
+
+          <div id="statusMessage" class="status-message"></div>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="/">🏠 Home</a>
+        <a href="/send-facebook-messages">💬 Send Messages</a>
+        <a href="/groups">👥 Groups</a>
+        <a href="/message-history">📊 History</a>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("groupPostForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const submitBtn = document.getElementById("submitBtn");
+          const statusMessage = document.getElementById("statusMessage");
+          const formData = new FormData(this);
+
+          // Disable submit button
+          submitBtn.disabled = true;
+          submitBtn.textContent = "🔄 Starting...";
+
+          // Hide previous status
+          statusMessage.style.display = "none";
+
+          fetch("/post-to-groups", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              statusMessage.className = "status-message success";
+              statusMessage.textContent =
+                data.status || "Group posting started successfully!";
+              statusMessage.style.display = "block";
+
+              // Reset form after success
+              this.reset();
+            })
+            .catch((error) => {
+              statusMessage.className = "status-message error";
+              statusMessage.textContent = "Error: " + error.message;
+              statusMessage.style.display = "block";
+            })
+            .finally(() => {
+              // Re-enable submit button
+              submitBtn.disabled = false;
+              submitBtn.textContent = "🚀 Start Group Posting";
+            });
+        });
+
+      // File path validation
+      document
+        .getElementById("media_file_path")
+        .addEventListener("blur", function () {
+          const filePath = this.value.trim();
+          if (
+            filePath &&
+            !filePath.match(/\.(jpg|jpeg|png|gif|mp4|mov|avi)$/i)
+          ) {
+            this.style.borderColor = "#ef4444";
+            this.title =
+              "Please enter a valid file path (jpg, png, gif, mp4, etc.)";
+          } else {
+            this.style.borderColor = "#d1d5db";
+            this.title = "";
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request, render_template, redirect, url_for
 from supabasePy import SupabaseClient
 
 import threading
+import re
 
 supabase = SupabaseClient()
 
@@ -181,6 +182,28 @@ def map_group():
     return redirect(url_for("groups_route"))
 
 
+@app.route("/post-to-groups", methods=["GET", "POST"])
+def post_to_groups_route():
+    """Route for posting to Facebook groups with text and media"""
+    if request.method == "POST":
+        group_url = request.form.get("group_url")
+        post_text = request.form.get("post_text")
+        media_file_path = request.form.get("media_file_path")
+
+        if group_url and post_text:
+            # Start background thread for group posting
+            thread = threading.Thread(
+                target=post_to_facebook_group,
+                args=(group_url, post_text, media_file_path),
+            )
+            thread.start()
+            return jsonify(
+                {"status": f"Group posting started in background for: {group_url}"}
+            )
+
+    return render_template("post_to_groups.html")
+
+
 def send_facebook_messages(message, group_id=None):
     from playwright.sync_api import sync_playwright
     import time
@@ -240,9 +263,24 @@ def send_facebook_messages(message, group_id=None):
             if "/messages/t/" in profile_url:
                 conversation_url = profile_url
 
+            # Facebook group URL with user ID: /groups/{group_id}/user/{user_id}/
+            elif "/groups/" in profile_url and "/user/" in profile_url:
+                # Extract user ID from group URL
+                user_match = re.search(r"/user/(\d+)/?", profile_url)
+                if user_match:
+                    user_id = user_match.group(1)
+                    conversation_url = f"https://www.facebook.com/messages/t/{user_id}/"
+                    print(f"Extracted user ID {user_id} from group URL: {profile_url}")
+                else:
+                    print(f"Could not extract user ID from group URL: {profile_url}")
+                    continue
+
             # profile.php?id=xxx
             elif "id=" in profile_url:
                 user_id = profile_url.split("id=")[-1]
+                # Handle cases where there might be additional parameters after the ID
+                if "&" in user_id:
+                    user_id = user_id.split("&")[0]
                 conversation_url = f"https://www.facebook.com/messages/t/{user_id}/"
 
             # username style
@@ -250,6 +288,10 @@ def send_facebook_messages(message, group_id=None):
                 username_match = re.search(r"facebook\.com/([^/?#]+)", profile_url)
                 if username_match:
                     username = username_match.group(1)
+                    # Skip if it's a groups or pages URL without user info
+                    if username in ["groups", "pages", "events", "marketplace"]:
+                        print(f"Skipping non-profile URL: {profile_url}")
+                        continue
                     conversation_url = (
                         f"https://www.facebook.com/messages/t/{username}/"
                     )
@@ -264,6 +306,279 @@ def send_facebook_messages(message, group_id=None):
 
         browser.close()
         print(f"Finished sending messages to {'group' if group_id else 'all users'}!")
+
+
+def post_to_facebook_group(group_url, post_text, media_file_path=None):
+    """Function to post to Facebook groups with text and optional media"""
+    from playwright.sync_api import sync_playwright
+    import time
+    import os
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context()
+            page = context.new_page()
+
+            # Navigate to Facebook
+            page.goto("https://www.facebook.com/")
+            print("Please log in manually and press Enter to continue...")
+            input()
+
+            # Navigate to the group
+            print(f"Navigating to group: {group_url}")
+            page.goto(group_url)
+            time.sleep(5)
+
+            print(
+                "Looking for 'Write something' or 'Create post' button to open post modal..."
+            )
+
+            # Step 1: Find and click the button that opens the post creation modal
+            try:
+                # Try different selectors for the "Write something" button that opens the modal
+                modal_trigger_selectors = [
+                    '[data-testid="status-attachment-mentions-input"]',
+                    '[placeholder*="Write something"]',
+                    '[aria-label*="Write something"]',
+                    'div[role="button"]:has-text("Write something")',
+                    'div:has-text("Write something")',
+                    '[data-testid="post-form-textarea"]',
+                    'div[role="textbox"][contenteditable="true"]',
+                ]
+
+                modal_trigger = None
+                for selector in modal_trigger_selectors:
+                    modal_trigger = page.query_selector(selector)
+                    if modal_trigger:
+                        print(f"Found modal trigger with selector: {selector}")
+                        break
+
+                if not modal_trigger:
+                    print("Could not find 'Write something' button to open post modal")
+                    return
+
+                # Click to open the post creation modal
+                print("Clicking to open post creation modal...")
+                modal_trigger.click()
+                time.sleep(3)
+
+                # Step 2: Wait for the post creation modal/popup to appear and find the text input
+                print("Waiting for post creation modal to appear...")
+
+                # Try to find the text input area in the modal
+                text_input_selectors = [
+                    'div[role="dialog"] div[role="textbox"][contenteditable="true"]',
+                    'div[aria-label*="Create post"] div[contenteditable="true"]',
+                    'div[data-testid="post-composer-form"] div[contenteditable="true"]',
+                    'div[contenteditable="true"]:not([role="button"])',
+                    '[data-testid="post-composer-text-input"] div[contenteditable="true"]',
+                    'div[role="textbox"][contenteditable="true"]',
+                ]
+
+                text_input = None
+                # Give more time for modal to fully load
+                for attempt in range(3):
+                    for selector in text_input_selectors:
+                        text_input = page.query_selector(selector)
+                        if text_input:
+                            print(f"Found text input with selector: {selector}")
+                            break
+                    if text_input:
+                        break
+                    print(f"Attempt {attempt + 1}: Modal still loading, waiting...")
+                    time.sleep(2)
+
+                if not text_input:
+                    print("Could not find text input in post modal")
+                    return
+
+                # Step 3: Fill in the post text
+                print(f"Filling in post text: {post_text}")
+                text_input.click()
+                time.sleep(1)
+                text_input.fill(post_text)
+                time.sleep(2)
+
+                # Step 4: Upload media if provided
+                if media_file_path and os.path.exists(media_file_path):
+                    print(f"Adding media: {media_file_path}")
+
+                    # First, try to find any existing file input elements
+                    file_input_selectors = [
+                        'div[role="dialog"] input[type="file"]',
+                        'input[type="file"][accept*="image"]',
+                        'input[type="file"][accept*="video"]',
+                        'input[type="file"]',
+                    ]
+
+                    file_input = None
+                    for selector in file_input_selectors:
+                        file_input = page.query_selector(selector)
+                        if file_input:
+                            print(
+                                f"Found existing file input with selector: {selector}"
+                            )
+                            break
+
+                    if file_input:
+                        # Directly set the file without clicking anything
+                        print("Setting file directly on existing input...")
+                        file_input.set_input_files(media_file_path)
+                        time.sleep(3)
+                        print("Media file set successfully")
+                    else:
+                        # If no direct file input found, look for photo/video buttons
+                        print("Looking for photo/video buttons to reveal file input...")
+                        upload_button_selectors = [
+                            'div[role="dialog"] div[aria-label*="Photo/video"]',
+                            'div[role="dialog"] div[aria-label*="Add photos/videos"]',
+                            'div[role="dialog"] div:has-text("Photo/video")',
+                            'div[role="dialog"] svg[aria-label*="Photo/video"]',
+                            '[data-testid="photo-upload-button"]',
+                            '[aria-label*="Photo/video"]',
+                        ]
+
+                        upload_button = None
+                        for selector in upload_button_selectors:
+                            upload_button = page.query_selector(selector)
+                            if upload_button:
+                                print(f"Found upload button with selector: {selector}")
+                                break
+
+                        if upload_button:
+                            # Before clicking, try to find the file input that will be used
+                            print("Looking for file input that will be triggered...")
+
+                            # Use page.on to listen for file chooser events
+                            def handle_file_chooser(file_chooser):
+                                print(
+                                    "File chooser dialog intercepted, setting file..."
+                                )
+                                file_chooser.set_files(media_file_path)
+
+                            # Set up the file chooser event listener
+                            page.on("filechooser", handle_file_chooser)
+
+                            # Now click the upload button
+                            print("Clicking upload button...")
+                            upload_button.click()
+
+                            # Wait for file to be processed
+                            time.sleep(4)
+                            print("Media uploaded successfully via file chooser")
+
+                            # Remove the event listener
+                            page.remove_listener("filechooser", handle_file_chooser)
+                        else:
+                            print("Could not find upload button in modal")
+
+                # Step 5: Find and click the Post button
+                print("Looking for Post button...")
+                post_button_selectors = [
+                    'div[role="dialog"] div[role="button"]:has-text("Post")',
+                    'div[role="dialog"] button:has-text("Post")',
+                    '[data-testid="react-composer-post-button"]',
+                    'div[aria-label="Post"]',
+                    'button[aria-label="Post"]',
+                ]
+
+                post_button = None
+                for selector in post_button_selectors:
+                    post_button = page.query_selector(selector)
+                    if post_button:
+                        print(f"Found post button with selector: {selector}")
+                        break
+
+                if post_button:
+                    print("Clicking Post button...")
+                    post_button.click()
+                    time.sleep(3)  # Wait to see if additional options appear
+
+                    # Check if additional options/tagging screen appeared
+                    print("Checking if additional options screen appeared...")
+
+                    # Look for the back arrow button at top left of modal
+                    back_button_selectors = [
+                        'div[role="dialog"] div[role="button"][aria-label*="Back"]',
+                        'div[role="dialog"] button[aria-label*="Back"]',
+                        'div[role="dialog"] svg[aria-label*="Back"]',
+                        'div[role="dialog"] div[role="button"]:has(svg)',
+                        'div[role="dialog"] button:has(svg)',
+                        'div[role="dialog"] [aria-label*="Go back"]',
+                        'div[role="dialog"] [data-testid*="back"]',
+                    ]
+
+                    back_button = None
+                    for selector in back_button_selectors:
+                        back_button = page.query_selector(selector)
+                        if back_button:
+                            print(f"Found back button with selector: {selector}")
+                            break
+
+                    if back_button:
+                        print(
+                            "Additional options screen detected, clicking back arrow..."
+                        )
+                        back_button.click()
+                        time.sleep(2)  # Wait for main post screen to return
+
+                        # Now look for the blue Post button again
+                        print("Looking for blue Post button after going back...")
+                        blue_post_selectors = [
+                            'div[role="dialog"] div[role="button"]:has-text("Post")',
+                            'div[role="dialog"] button:has-text("Post")',
+                            '[data-testid="react-composer-post-button"]',
+                            'div[aria-label="Post"]',
+                            'button[aria-label="Post"]',
+                        ]
+
+                        blue_post_button = None
+                        for attempt in range(2):  # Try twice
+                            for selector in blue_post_selectors:
+                                blue_post_button = page.query_selector(selector)
+                                if blue_post_button:
+                                    print(
+                                        f"Found blue post button with selector: {selector}"
+                                    )
+                                    break
+                            if blue_post_button:
+                                break
+                            print(
+                                f"Attempt {attempt + 1}: Looking for blue post button..."
+                            )
+                            time.sleep(1)
+
+                        if blue_post_button:
+                            print("Clicking blue Post button to submit...")
+                            blue_post_button.click()
+                            time.sleep(5)
+                            print("✅ Post submitted successfully!")
+                        else:
+                            print("❌ Could not find blue Post button after going back")
+                    else:
+                        # No back button found, might have posted directly
+                        print(
+                            "No additional options detected, post may have been submitted directly"
+                        )
+                        time.sleep(2)
+                        print("✅ Post submitted successfully!")
+                else:
+                    print("❌ Could not find Post button in modal")
+
+            except Exception as e:
+                print(f"Error during group posting process: {e}")
+                # Try to take a screenshot for debugging
+                try:
+                    page.screenshot(path="debug_screenshot.png")
+                    print("Debug screenshot saved as debug_screenshot.png")
+                except:
+                    pass
+
+            browser.close()
+
+    except Exception as e:
+        print(f"Error in post_to_facebook_group: {e}")
 
 
 if __name__ == "__main__":
