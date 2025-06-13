@@ -97,13 +97,16 @@ class SupabaseClient:
                 urls.append(item["facebook_profile_urls"]["url"])
         return urls
 
-    def store_message_history(self, message, group_id=None, group_name=None):
+    def store_message_history(
+        self, message, group_id=None, group_name=None, facebook_native_group_id=None
+    ):
         """Store message history in the database"""
         data = {
             "message": message,
             "group_id": group_id,
             "group_name": group_name,
-            "sent_to_all": group_id is None,
+            "facebook_native_group_id": facebook_native_group_id,
+            "sent_to_all": group_id is None and facebook_native_group_id is None,
         }
         response = self.client.table("message_history").insert(data).execute()
         return response.data

@@ -580,11 +580,20 @@ def post_to_facebook_group(page, group_url, post_text, media_file_path=None):
 
 
 def post_to_single_group(group_url, post_text, media_file_path=None):
-    """Function to post to a single Facebook group with browser management"""
+    """Function to post to a single Facebook group with browser automation"""
     from playwright.sync_api import sync_playwright
     import time
+    import re
+
+    print(f"Starting single group posting to: {group_url}")
 
     try:
+        # Extract group ID from URL for storage
+        group_id_match = re.search(r"/groups/(\d+)", group_url)
+        facebook_native_group_id = (
+            group_id_match.group(1) if group_id_match else group_url
+        )
+
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
             context = browser.new_context()
@@ -596,27 +605,35 @@ def post_to_single_group(group_url, post_text, media_file_path=None):
             input()
             print("✅ Login completed! Starting group posting...")
 
-            # Post to the single group
+            # Post to the group
             success = post_to_facebook_group(
                 page, group_url, post_text, media_file_path
             )
 
             if success:
-                print(f"✅ Successfully posted to group: {group_url}")
+                print("✅ Successfully posted to group!")
+                # Store message history for Facebook native group post
+                supabase.store_message_history(
+                    message=post_text,
+                    group_id=None,
+                    group_name=None,
+                    facebook_native_group_id=facebook_native_group_id,
+                )
+                print(
+                    f"📝 Message history stored for Facebook group: {facebook_native_group_id}"
+                )
             else:
-                print(f"❌ Failed to post to group: {group_url}")
+                print("❌ Failed to post to group")
 
-            # Keep browser open for a moment to see results
-            print(
-                "🎉 Single group posting completed! Keeping browser open for 10 seconds..."
-            )
+            # Keep browser open for 10 seconds to see results
+            print("Keeping browser open for 10 seconds...")
             time.sleep(10)
             browser.close()
 
-            return success
+        return success
 
     except Exception as e:
-        print(f"Error in single group posting: {e}")
+        print(f"Error in post_to_single_group: {e}")
         return False
 
 
@@ -671,6 +688,16 @@ def post_to_multiple_groups(group_urls, post_text, media_file_path=None):
                 except Exception as e:
                     print(f"❌ Failed to post to {group_url}: {e}")
                     failed_posts += 1
+
+            # Store message history for posting to all Facebook native groups
+            if successful_posts > 0:
+                supabase.store_message_history(
+                    message=post_text,
+                    group_id=None,
+                    group_name=None,
+                    facebook_native_group_id="ALL_FACEBOOK_GROUPS",
+                )
+                print(f"📝 Message history stored for posting to all Facebook groups")
 
             # Keep browser open for a moment to see final results
             print(
