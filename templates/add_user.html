@@ -675,8 +675,20 @@ facebook.com/another.username
           <span>👥</span>
           <span>Manage Groups</span>
         </a>
-        <a href="{{ url_for('send_facebook_messages_route') }}">
-          <span>📩</span>
+        <a href="{{ url_for('post_to_groups_route') }}">
+          <span>📢</span>
+          <span>Post to Groups</span>
+        </a>
+        <a href="{{ url_for('manage_group_urls_route') }}">
+          <span>🔗</span>
+          <span>Manage Group URLs</span>
+        </a>
+        <a href="{{ url_for('facebook_group_collections_route') }}">
+          <span>📂</span>
+          <span>Group Collections</span>
+        </a>
+        <a href="{{ url_for('send_message_route') }}">
+          <span>💬</span>
           <span>Send Messages</span>
         </a>
         <a href="{{ url_for('message_history_route') }}">

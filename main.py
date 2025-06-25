@@ -66,6 +66,58 @@ def manage_group_urls_route():
     return render_template("manage_group_urls.html", group_urls=group_urls)
 
 
+@app.route("/facebook-group-collections", methods=["GET", "POST"])
+def facebook_group_collections_route():
+    """Route for managing Facebook group collections"""
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        if action == "create_collection":
+            collection_name = request.form.get("collection_name")
+            if collection_name:
+                supabase.create_facebook_group_collection(collection_name)
+                return redirect(url_for("facebook_group_collections_route"))
+
+        elif action == "manage_collection":
+            collection_id = int(request.form.get("collection_id"))
+            selected_urls = request.form.getlist("selected_urls")
+
+            # Update the collection with selected URLs
+            supabase.update_collection_urls(collection_id, selected_urls)
+            return redirect(url_for("facebook_group_collections_route"))
+
+        elif action == "delete_collection":
+            collection_id = int(request.form.get("collection_id"))
+            supabase.delete_facebook_group_collection(collection_id)
+            return redirect(url_for("facebook_group_collections_route"))
+
+    # Get all collections
+    collections = supabase.get_all_facebook_group_collections()
+
+    # Get all available group URLs
+    all_group_urls = supabase.get_all_group_urls_with_ids()
+
+    # Check if we're editing a specific collection
+    selected_collection_id = request.args.get("collection_id")
+    selected_collection = None
+    collection_urls = []
+
+    if selected_collection_id:
+        selected_collection_id = int(selected_collection_id)
+        selected_collection = supabase.get_facebook_group_collection_by_id(
+            selected_collection_id
+        )
+        collection_urls = supabase.get_urls_in_collection(selected_collection_id)
+
+    return render_template(
+        "facebook_group_collections.html",
+        collections=collections,
+        all_group_urls=all_group_urls,
+        selected_collection=selected_collection,
+        collection_urls=collection_urls,
+    )
+
+
 @app.route("/send-facebook-messages", methods=["GET", "POST"])
 def send_facebook_messages_route():
     if request.method == "POST":
@@ -219,6 +271,7 @@ def post_to_groups_route():
         post_text = request.form.get("post_text")
         media_file_path = request.form.get("media_file_path")
         selected_action = request.form.get("selected_action", "single")
+        collection_id = request.form.get("collection_id")
 
         if post_text:
             if selected_action == "all_groups":
@@ -239,6 +292,35 @@ def post_to_groups_route():
                 else:
                     return jsonify({"status": "No saved group URLs found"})
 
+            elif selected_action == "collection" and collection_id:
+                # Post to specific collection
+                collection_urls = supabase.get_urls_for_collection(int(collection_id))
+                if collection_urls:
+                    # Get collection name for logging
+                    collection = supabase.get_facebook_group_collection_by_id(
+                        int(collection_id)
+                    )
+                    collection_name = collection.get("name", "Unknown Collection")
+
+                    # Start background thread for posting to collection
+                    thread = threading.Thread(
+                        target=post_to_collection_groups,
+                        args=(
+                            collection_urls,
+                            post_text,
+                            media_file_path,
+                            collection_name,
+                        ),
+                    )
+                    thread.start()
+                    return jsonify(
+                        {
+                            "status": f"Collection posting started for '{collection_name}' ({len(collection_urls)} groups) in background"
+                        }
+                    )
+                else:
+                    return jsonify({"status": "No groups found in selected collection"})
+
             elif selected_action == "single" and group_url:
                 # Post to single group URL
                 # Start background thread for single group posting
@@ -253,7 +335,12 @@ def post_to_groups_route():
 
     # Get all saved group URLs for the dropdown
     group_urls = supabase.get_all_group_urls() or []
-    return render_template("post_to_groups.html", group_urls=group_urls)
+    # Get all collections for the dropdown
+    collections = supabase.get_all_facebook_group_collections() or []
+
+    return render_template(
+        "post_to_groups.html", group_urls=group_urls, collections=collections
+    )
 
 
 def send_facebook_messages(message, group_id=None):
@@ -713,6 +800,117 @@ def post_to_multiple_groups(group_urls, post_text, media_file_path=None):
     print(f"✅ Successful posts: {successful_posts}")
     print(f"❌ Failed posts: {failed_posts}")
     print(f"📊 Total groups processed: {len(group_urls)}")
+    return successful_posts, failed_posts
+
+
+def post_to_collection_groups(
+    collection_urls, post_text, media_file_path=None, collection_name="Collection"
+):
+    """Function to post to all groups in a collection using browser automation"""
+    from playwright.sync_api import sync_playwright
+    import random
+    import time
+    import re
+
+    print(
+        f"Starting collection posting to '{collection_name}' with {len(collection_urls)} groups..."
+    )
+
+    successful_posts = 0
+    failed_posts = 0
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context()
+            page = context.new_page()
+
+            # Navigate to Facebook and login ONCE
+            page.goto("https://www.facebook.com/")
+            print("🔑 Please log in manually and press Enter to continue...")
+            input()
+            print(
+                f"✅ Login completed! Starting collection '{collection_name}' posting..."
+            )
+
+            # Now post to each group using the same browser session
+            for i, group_url in enumerate(collection_urls, 1):
+                try:
+                    print(
+                        f"\n--- Posting to group {i}/{len(collection_urls)} in collection '{collection_name}': {group_url} ---"
+                    )
+
+                    # Extract group ID from URL for logging
+                    group_id_match = re.search(r"/groups/(\d+)", group_url)
+                    facebook_native_group_id = (
+                        group_id_match.group(1) if group_id_match else group_url
+                    )
+
+                    # Use the existing page to post to the group
+                    success = post_to_facebook_group(
+                        page, group_url, post_text, media_file_path
+                    )
+
+                    if success:
+                        successful_posts += 1
+                        supabase.log_message(
+                            group_url, post_text, "success", collection_name
+                        )
+                        print(
+                            f"✅ Successfully posted to group {i} in collection '{collection_name}'"
+                        )
+                    else:
+                        failed_posts += 1
+                        supabase.log_message(
+                            group_url,
+                            post_text,
+                            "failed",
+                            collection_name,
+                            "Posting failed",
+                        )
+                        print(
+                            f"❌ Failed to post to group {i} in collection '{collection_name}'"
+                        )
+
+                    # Add delay between posts (35-45 seconds as requested)
+                    if i < len(collection_urls):  # Don't delay after the last post
+                        delay = random.randint(35, 45)  # 35-45 seconds between posts
+                        print(f"⏳ Waiting {delay} seconds before next group...")
+                        time.sleep(delay)
+
+                except Exception as e:
+                    print(f"❌ Exception posting to {group_url}: {e}")
+                    failed_posts += 1
+                    supabase.log_message(
+                        group_url, post_text, "failed", collection_name, str(e)
+                    )
+
+            # Store message history for posting to collection
+            if successful_posts > 0:
+                supabase.store_message_history(
+                    message=post_text,
+                    group_id=None,
+                    group_name=collection_name,
+                    facebook_native_group_id=f"COLLECTION_{collection_name}",
+                )
+                print(
+                    f"📝 Message history stored for collection '{collection_name}' posting"
+                )
+
+            # Keep browser open for a moment to see final results
+            print(
+                f"\n🎉 Collection '{collection_name}' posting completed! Keeping browser open for 10 seconds..."
+            )
+            time.sleep(10)
+            browser.close()
+
+    except Exception as e:
+        print(f"Error in collection posting: {e}")
+
+    print(f"\n--- Final Results for Collection '{collection_name}' ---")
+    print(f"✅ Successful posts: {successful_posts}")
+    print(f"❌ Failed posts: {failed_posts}")
+    print(f"📊 Total groups processed: {len(collection_urls)}")
     return successful_posts, failed_posts
 
 

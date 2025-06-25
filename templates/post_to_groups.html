@@ -287,6 +287,7 @@
                 <option value="single_saved">
                   🔗 Single Group (From Saved)
                 </option>
+                <option value="collection">📂 Post to Collection</option>
                 <option value="all_groups">
                   🌟 All Saved Groups (Bulk Post)
                 </option>
@@ -320,6 +321,27 @@
                 No saved group URLs found.
                 <a href="/manage-group-urls" style="color: #667eea"
                   >Add some group URLs first</a
+                >
+              </small>
+              {% endif %}
+            </div>
+
+            <!-- Collection Selection (shown for collection) -->
+            <div class="form-group" id="collection_group" style="display: none">
+              <label for="selected_collection">📂 Select Collection *</label>
+              <select id="selected_collection" name="selected_collection">
+                <option value="">Choose a collection...</option>
+                {% for collection in collections %}
+                <option value="{{ collection.id }}">
+                  📂 {{ collection.name }} ({{ collection.url_count }} groups)
+                </option>
+                {% endfor %}
+              </select>
+              {% if not collections %}
+              <small style="color: #ef4444; margin-top: 5px; display: block">
+                No collections found.
+                <a href="/facebook-group-collections" style="color: #667eea"
+                  >Create collections first</a
                 >
               </small>
               {% endif %}
@@ -384,6 +406,7 @@
       <div class="nav-links">
         <a href="/">🏠 Home</a>
         <a href="/manage-group-urls">🔗 Manage Group URLs</a>
+        <a href="/facebook-group-collections">📂 Group Collections</a>
         <a href="/send-facebook-messages">💬 Send Messages</a>
         <a href="/groups">👥 Groups</a>
         <a href="/message-history">📊 History</a>
@@ -396,19 +419,27 @@
         const postingType = document.getElementById("posting_type").value;
         const manualGroup = document.getElementById("manual_url_group");
         const savedGroup = document.getElementById("saved_url_group");
+        const collectionGroup = document.getElementById("collection_group");
         const bulkGroup = document.getElementById("bulk_info_group");
         const groupUrlInput = document.getElementById("group_url");
         const selectedGroupInput =
           document.getElementById("selected_group_url");
+        const selectedCollectionInput = document.getElementById(
+          "selected_collection"
+        );
 
         // Hide all groups first
         manualGroup.style.display = "none";
         savedGroup.style.display = "none";
+        collectionGroup.style.display = "none";
         bulkGroup.style.display = "none";
 
         // Clear required attributes
         groupUrlInput.required = false;
         selectedGroupInput.required = false;
+        if (selectedCollectionInput) {
+          selectedCollectionInput.required = false;
+        }
 
         // Show appropriate group based on selection
         if (postingType === "single_manual") {
@@ -417,6 +448,11 @@
         } else if (postingType === "single_saved") {
           savedGroup.style.display = "block";
           selectedGroupInput.required = true;
+        } else if (postingType === "collection") {
+          collectionGroup.style.display = "block";
+          if (selectedCollectionInput) {
+            selectedCollectionInput.required = true;
+          }
         } else if (postingType === "all_groups") {
           bulkGroup.style.display = "block";
         }
@@ -435,6 +471,12 @@
           const postingType = document.getElementById("posting_type").value;
           if (postingType === "all_groups") {
             formData.append("selected_action", "all_groups");
+          } else if (postingType === "collection") {
+            formData.append("selected_action", "collection");
+            const selectedCollection = document.getElementById(
+              "selected_collection"
+            ).value;
+            formData.append("collection_id", selectedCollection);
           } else {
             formData.append("selected_action", "single");
             // Set the correct group URL based on posting type
