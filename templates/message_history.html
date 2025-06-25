@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📊 Message History - Finance Corp</title>
+    <title>📋 Message History - Facebook Automation</title>
     <style>
       * {
         margin: 0;
@@ -16,75 +16,121 @@
         background: #000000;
         color: #ffffff;
         min-height: 100vh;
-        padding: 20px;
       }
 
+      /* Uniform Navigation Bar */
+      .navbar {
+        background: #111111;
+        border-bottom: 1px solid #333333;
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 25px;
+        list-style: none;
+      }
+
+      .navbar-nav a {
+        color: #cccccc;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .navbar-nav a:hover {
+        color: #ffffff;
+        background: #333333;
+      }
+
+      .navbar-nav a.active {
+        color: #ffffff;
+        background: #444444;
+      }
+
+      /* Main Container */
       .container {
         max-width: 1200px;
         margin: 0 auto;
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        overflow: hidden;
-        border: 1px solid #333;
+        padding: 40px 20px;
       }
 
       .header {
-        background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
-        color: #ffffff;
-        padding: 30px;
         text-align: center;
-        border-bottom: 2px solid #444;
+        margin-bottom: 40px;
       }
 
       .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
+        font-size: 2.5rem;
         font-weight: 700;
-      }
-
-      .header p {
-        font-size: 1.1em;
-        opacity: 0.9;
-        color: #cccccc;
-      }
-
-      .main-content {
-        padding: 40px;
-      }
-
-      .info-box {
-        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-        border: 2px solid #444;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        color: #cccccc;
-      }
-
-      .info-box strong {
         color: #ffffff;
+        margin-bottom: 15px;
       }
 
-      .stats {
-        background: #1a1a1a;
-        border: 2px solid #333;
-        border-radius: 15px;
-        padding: 25px;
-        text-align: center;
-        margin-bottom: 30px;
+      .header .subtitle {
+        font-size: 1.2rem;
+        color: #888888;
+        margin-bottom: 20px;
       }
 
-      .stats-content {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      .help-btn {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .help-btn:hover {
+        background: #444444;
+      }
+
+      /* Statistics Section */
+      .stats-section {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 40px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 30px;
-        flex-wrap: wrap;
+        text-align: center;
       }
 
       .stat-item {
-        text-align: center;
+        padding: 20px;
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
       }
 
       .stat-number {
@@ -92,32 +138,48 @@
         font-weight: 700;
         color: #ffffff;
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
       }
 
       .stat-label {
-        color: #cccccc;
+        color: #888888;
         font-size: 1rem;
         font-weight: 500;
       }
 
+      /* Messages Section */
+      .messages-section {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        color: #ffffff;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
       .messages-grid {
         display: grid;
-        gap: 25px;
+        gap: 20px;
       }
 
       .message-card {
-        background: #2d2d2d;
-        border: 2px solid #444;
-        border-radius: 15px;
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
         padding: 25px;
         transition: all 0.3s ease;
       }
 
       .message-card:hover {
-        border-color: #666;
-        background: #3d3d3d;
-        transform: translateY(-2px);
+        border-color: #555555;
+        background: #2a2a2a;
       }
 
       .message-header {
@@ -137,248 +199,336 @@
       }
 
       .recipient-badge {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 0.9rem;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
         font-weight: 600;
-        color: white;
+        color: #ffffff;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         white-space: nowrap;
       }
 
       .all-users {
-        background: linear-gradient(135deg, #2196f3, #1976d2);
-        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        background: #4a5568;
       }
 
       .group-specific {
-        background: linear-gradient(135deg, #ff9800, #f57c00);
-        box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
-      }
-
-      .facebook-native-group {
-        background: linear-gradient(135deg, #4267b2, #365899);
-        box-shadow: 0 5px 15px rgba(66, 103, 178, 0.3);
-      }
-
-      .facebook-all-groups {
-        background: linear-gradient(135deg, #1877f2, #42a5f5);
-        box-shadow: 0 5px 15px rgba(24, 119, 242, 0.3);
+        background: #2d3748;
       }
 
       .timestamp {
-        color: #888;
-        font-size: 0.9rem;
+        color: #888888;
+        font-size: 0.85rem;
         font-weight: 500;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         white-space: nowrap;
       }
 
       .message-content {
-        background: #1a1a1a;
-        border: 1px solid #444;
-        border-radius: 12px;
+        background: #000000;
+        border: 1px solid #333333;
+        border-radius: 6px;
         padding: 20px;
-        line-height: 1.7;
+        line-height: 1.6;
         white-space: pre-wrap;
         word-wrap: break-word;
-        color: #e0e0e0;
-        font-size: 1rem;
-        border-left: 4px solid #666;
+        color: #cccccc;
+        font-size: 0.95rem;
+        border-left: 3px solid #555555;
       }
 
       .no-history {
         text-align: center;
-        color: #888;
+        color: #888888;
         padding: 60px 40px;
-        background: #1a1a1a;
-        border-radius: 15px;
-        border: 2px solid #333;
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+      }
+
+      .no-history-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
       }
 
       .no-history h3 {
-        font-size: 1.5rem;
-        color: #aaa;
+        color: #ffffff;
         margin-bottom: 15px;
+        font-size: 1.5rem;
       }
 
       .no-history p {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: #888;
+        font-size: 1rem;
+        margin-bottom: 25px;
       }
 
-      .nav-links {
-        padding: 20px 40px;
-        background: #1a1a1a;
-        border-top: 1px solid #333;
-        text-align: center;
-      }
-
-      .nav-links a {
-        color: #cccccc;
+      .no-history a {
+        color: #ffffff;
+        background: #333333;
+        padding: 12px 24px;
+        border-radius: 6px;
         text-decoration: none;
-        font-weight: 600;
-        margin: 0 15px;
-        transition: color 0.3s ease;
+        border: 1px solid #555555;
+        transition: all 0.3s ease;
       }
 
-      .nav-links a:hover {
+      .no-history a:hover {
+        background: #444444;
+      }
+
+      /* Help Popup */
+      .help-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .help-content {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .help-content h3 {
+        color: #ffffff;
+        margin-bottom: 20px;
+      }
+
+      .help-content ul {
+        color: #cccccc;
+        margin-left: 20px;
+        line-height: 1.8;
+      }
+
+      .help-content li {
+        margin-bottom: 10px;
+      }
+
+      .help-content .tip {
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        color: #888888;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888888;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .close-btn:hover {
         color: #ffffff;
       }
 
+      /* Responsive Design */
       @media (max-width: 768px) {
+        .navbar-nav {
+          display: none;
+        }
+
         .container {
-          margin: 10px;
-          border-radius: 15px;
+          padding: 20px 15px;
         }
 
-        .header h1 {
-          font-size: 2em;
-        }
-
-        .main-content {
-          padding: 25px;
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 20px;
         }
 
         .message-header {
           flex-direction: column;
           align-items: flex-start;
-          gap: 15px;
         }
 
-        .message-meta {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
-        }
-
-        .stats-content {
-          gap: 20px;
-        }
-
-        .message-card {
-          padding: 20px;
+        .header h1 {
+          font-size: 2rem;
         }
       }
     </style>
   </head>
   <body>
+    <!-- Uniform Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="/" class="navbar-brand">🤖 Facebook Automation</a>
+        <ul class="navbar-nav">
+          <li><a href="/">🏠 Dashboard</a></li>
+          <li><a href="/add_user">👥 Add Users</a></li>
+          <li><a href="/groups">📊 Manage Groups</a></li>
+          <li><a href="/manage-group-urls">🔗 Group URLs</a></li>
+          <li><a href="/facebook-group-collections">📂 Collections</a></li>
+          <li><a href="/post-to-groups">📝 Post to Groups</a></li>
+          <li><a href="/send-facebook-messages">💬 Send Messages</a></li>
+          <li><a href="/message-history" class="active">📋 History</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <div class="container">
       <div class="header">
-        <h1>📊 Message History</h1>
-        <p>Finance Corp - Track Your Messaging Campaigns</p>
+        <h1>📋 Message History</h1>
+        <p class="subtitle">View and track all your sent Facebook messages</p>
+        <button class="help-btn" onclick="showHelp()">
+          ❓ How to View History
+        </button>
       </div>
 
-      <div class="main-content">
-        <div class="info-box">
-          <strong>📈 Message Analytics:</strong><br />
-          • Track all your sent messages and campaigns<br />
-          • Monitor broadcast messages to all users<br />
-          • View Facebook native group posts and engagement<br />
-          • Analyze messaging patterns and performance metrics
-        </div>
-
-        {% if history %}
-        <div class="stats">
-          <div class="stats-content">
-            <div class="stat-item">
-              <span class="stat-number">{{ history|length }}</span>
-              <div class="stat-label">Total Messages</div>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number"
-                >{{ history|selectattr('sent_to_all')|list|length }}</span
-              >
-              <div class="stat-label">Broadcast Messages</div>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number"
-                >{{ history|selectattr('facebook_native_group_id')|list|length
-                }}</span
-              >
-              <div class="stat-label">Facebook Group Posts</div>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number"
-                >{{ (history|length) -
-                (history|selectattr('sent_to_all')|list|length) -
-                (history|selectattr('facebook_native_group_id')|list|length)
-                }}</span
-              >
-              <div class="stat-label">Custom Group Messages</div>
-            </div>
+      <!-- Statistics Section -->
+      <div class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-number">{{ message_history|length }}</span>
+            <span class="stat-label">Total Messages</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">{{ unique_recipients }}</span>
+            <span class="stat-label">Recipients Reached</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">{{ recent_messages }}</span>
+            <span class="stat-label">Last 7 Days</span>
           </div>
         </div>
+      </div>
 
+      <!-- Messages Section -->
+      <div class="messages-section">
+        <h2 class="section-title">
+          <span>📨</span>
+          <span>Message History</span>
+        </h2>
+
+        {% if message_history %}
         <div class="messages-grid">
-          {% for message in history %}
+          {% for message in message_history %}
           <div class="message-card">
             <div class="message-header">
               <div class="message-meta">
-                {% if message.sent_to_all %}
-                <span class="recipient-badge all-users">
-                  <span>📢</span>
-                  <span>Broadcast to All Users</span>
-                </span>
-                {% elif message.facebook_native_group_id %} {% if
-                message.facebook_native_group_id == "ALL_FACEBOOK_GROUPS" %}
-                <span class="recipient-badge facebook-all-groups">
+                <span
+                  class="recipient-badge {% if message.group_id == 'all' %}all-users{% else %}group-specific{% endif %}"
+                >
+                  {% if message.group_id == 'all' %}
                   <span>🌐</span>
-                  <span>All Facebook Groups</span>
-                </span>
-                {% else %}
-                <span class="recipient-badge facebook-native-group">
-                  <span>🌐</span>
-                  <span
-                    >Facebook Group: {{ message.facebook_native_group_id
-                    }}</span
-                  >
-                </span>
-                {% endif %} {% else %}
-                <span class="recipient-badge group-specific">
+                  <span>All Users</span>
+                  {% else %}
                   <span>👥</span>
-                  <span>{{ message.group_name }}</span>
+                  <span>{{ message.group_name or 'Specific Group' }}</span>
+                  {% endif %}
                 </span>
-                {% endif %}
               </div>
               <div class="timestamp">
-                <span>🕐</span>
-                {% if message.created_at %} {{
-                message.created_at[:19].replace('T', ' ') }} {% else %} Recent
-                {% endif %}
+                <span>🕒</span>
+                <span
+                  >{{ message.timestamp.strftime('%B %d, %Y at %I:%M %p')
+                  }}</span
+                >
               </div>
             </div>
-
             <div class="message-content">{{ message.message }}</div>
           </div>
           {% endfor %}
         </div>
-
         {% else %}
         <div class="no-history">
-          <h3>📭 No Messages Yet</h3>
+          <div class="no-history-icon">📭</div>
+          <h3>No Message History</h3>
           <p>
-            Your message history will appear here once you start sending
-            campaigns.<br />
-            Begin by creating your first message to see your analytics!
+            You haven't sent any messages yet. Start by sending your first
+            message!
           </p>
+          <a href="/send-facebook-messages">💬 Send Your First Message</a>
         </div>
         {% endif %}
       </div>
+    </div>
 
-      <div class="nav-links">
-        <a href="/">🏠 Home</a>
-        <a href="/send-facebook-messages">💬 Send Messages</a>
-        <a href="/post-to-groups">📝 Post to Groups</a>
-        <a href="/facebook-group-collections">📂 Group Collections</a>
-        <a href="/groups">👥 Manage Groups</a>
-        <a href="/add_user">➕ Add Users</a>
+    <!-- Help Popup -->
+    <div id="helpPopup" class="help-popup">
+      <div class="help-content">
+        <button class="close-btn" onclick="hideHelp()">&times;</button>
+        <h3>📋 How to View Message History</h3>
+        <ul>
+          <li>
+            <strong>Message Cards:</strong> Each card shows a sent message with
+            recipient details and timestamp
+          </li>
+          <li>
+            <strong>Recipient Types:</strong> Messages are labeled as "All
+            Users" or specific group names
+          </li>
+          <li>
+            <strong>Statistics:</strong> View total messages sent, recipients
+            reached, and recent activity
+          </li>
+          <li>
+            <strong>Message Content:</strong> Full message text is preserved and
+            displayed
+          </li>
+          <li>
+            <strong>Chronological Order:</strong> Messages are sorted by most
+            recent first
+          </li>
+        </ul>
+
+        <div class="tip">
+          <strong>💡 Pro Tips:</strong><br />
+          • Use message history to track your communication patterns<br />
+          • Review successful messages to create templates<br />
+          • Monitor your messaging frequency to avoid spam detection<br />
+          • Keep track of which groups respond best to your messages
+        </div>
       </div>
     </div>
+
+    <script>
+      function showHelp() {
+        document.getElementById("helpPopup").style.display = "flex";
+      }
+
+      function hideHelp() {
+        document.getElementById("helpPopup").style.display = "none";
+      }
+
+      // Close popup when clicking outside
+      document
+        .getElementById("helpPopup")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            hideHelp();
+          }
+        });
+
+      // Close popup with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          hideHelp();
+        }
+      });
+    </script>
   </body>
 </html>

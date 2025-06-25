@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🔗 Manage Group URLs - Facebook Automation</title>
+    <title>🔗 Group URLs - Facebook Automation</title>
     <style>
       * {
         margin: 0;
@@ -13,349 +13,607 @@
 
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #000000;
+        color: #ffffff;
         min-height: 100vh;
-        color: #333;
-        padding: 20px;
       }
 
-      .container {
-        max-width: 1000px;
+      /* Uniform Navigation Bar */
+      .navbar {
+        background: #111111;
+        border-bottom: 1px solid #333333;
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-container {
+        max-width: 1200px;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 25px;
+        list-style: none;
+      }
+
+      .navbar-nav a {
+        color: #cccccc;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .navbar-nav a:hover {
+        color: #ffffff;
+        background: #333333;
+      }
+
+      .navbar-nav a.active {
+        color: #ffffff;
+        background: #444444;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
       }
 
       .header {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        padding: 30px;
         text-align: center;
+        margin-bottom: 40px;
       }
 
       .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
+        font-size: 2.5rem;
         font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 15px;
       }
 
-      .header p {
-        font-size: 1.1em;
-        opacity: 0.9;
+      .header .subtitle {
+        font-size: 1.2rem;
+        color: #888888;
+        margin-bottom: 20px;
       }
 
-      .main-content {
-        padding: 40px;
+      .help-btn {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
       }
 
-      .section {
-        background: #f8fafc;
-        border-radius: 15px;
+      .help-btn:hover {
+        background: #444444;
+      }
+
+      /* Main Grid Layout */
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .section-card {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
         padding: 30px;
-        margin-bottom: 30px;
-        border: 2px solid #e2e8f0;
       }
 
-      .section h3 {
-        color: #374151;
-        font-size: 1.4em;
+      .section-title {
+        font-size: 1.5rem;
+        color: #ffffff;
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
       }
 
+      /* Form Styles */
       .form-group {
         margin-bottom: 25px;
       }
 
-      .form-group label {
+      label {
         display: block;
         margin-bottom: 8px;
-        color: #374151;
         font-weight: 600;
-        font-size: 1.1em;
+        color: #ffffff;
+        font-size: 1rem;
       }
 
-      .form-group textarea {
+      input[type="text"],
+      input[type="url"],
+      textarea {
         width: 100%;
-        padding: 15px;
-        border: 2px solid #d1d5db;
-        border-radius: 12px;
-        font-size: 1em;
+        padding: 12px 16px;
+        font-size: 1rem;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        background: #000000;
+        color: #ffffff;
         transition: all 0.3s ease;
-        background: white;
-        height: 120px;
+      }
+
+      input[type="text"]:focus,
+      input[type="url"]:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #555555;
+      }
+
+      input[type="text"]::placeholder,
+      input[type="url"]::placeholder,
+      textarea::placeholder {
+        color: #666666;
+      }
+
+      textarea {
+        min-height: 120px;
         resize: vertical;
         font-family: inherit;
       }
 
-      .form-group textarea:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
-      }
-
-      .submit-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px 30px;
-        border: none;
-        border-radius: 12px;
-        font-size: 1.1em;
-        font-weight: 600;
+      button {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 12px 24px;
+        border-radius: 8px;
         cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
         transition: all 0.3s ease;
       }
 
-      .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      button:hover {
+        background: #444444;
+        border-color: #777777;
       }
 
+      button.primary {
+        background: #4a5568;
+        border-color: #718096;
+      }
+
+      button.primary:hover {
+        background: #2d3748;
+        border-color: #4a5568;
+      }
+
+      /* URLs List */
       .urls-list {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
         max-height: 400px;
         overflow-y: auto;
-        border: 2px solid #e2e8f0;
       }
 
       .url-item {
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        margin-bottom: 10px;
-        background: #f8fafc;
-        border-radius: 8px;
-        border-left: 4px solid #667eea;
-      }
-
-      .url-text {
-        flex: 1;
-        word-break: break-all;
-        margin-right: 15px;
-        color: #374151;
-      }
-
-      .delete-btn {
-        background: #ef4444;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9em;
         transition: all 0.3s ease;
       }
 
-      .delete-btn:hover {
-        background: #dc2626;
-        transform: translateY(-1px);
+      .url-item:hover {
+        background: #333333;
+        border-color: #555555;
       }
 
-      .stats {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      .stats h4 {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-      }
-
-      .stats p {
-        font-size: 2em;
-        font-weight: bold;
-      }
-
-      .nav-links {
-        padding: 20px 40px;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
-        text-align: center;
-      }
-
-      .nav-links a {
-        color: #667eea;
-        text-decoration: none;
+      .url-text {
+        color: #ffffff;
         font-weight: 600;
-        margin: 0 15px;
-        transition: color 0.3s ease;
+        margin-right: 15px;
+        word-break: break-all;
+        flex: 1;
       }
 
-      .nav-links a:hover {
-        color: #4f46e5;
+      .url-actions {
+        display: flex;
+        gap: 10px;
       }
 
-      .empty-state {
+      .action-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        min-width: 80px;
+      }
+
+      .delete-btn {
+        background: #dc2626;
+        border-color: #ef4444;
+      }
+
+      .delete-btn:hover {
+        background: #b91c1c;
+        border-color: #dc2626;
+      }
+
+      /* Success Message */
+      .success-message {
+        background: #2d5016;
+        border: 1px solid #68d391;
+        color: #68d391;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      /* Stats Card */
+      .stats-card {
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 20px;
         text-align: center;
-        padding: 40px;
-        color: #6b7280;
+        margin-bottom: 20px;
       }
 
-      .empty-state h4 {
-        font-size: 1.2em;
+      .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4a5568;
+        margin-bottom: 5px;
+      }
+
+      .stats-label {
+        color: #888888;
+        font-size: 0.9rem;
+      }
+
+      /* Helper Popup */
+      .help-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .help-content {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .help-content h3 {
+        color: #ffffff;
+        margin-bottom: 20px;
+      }
+
+      .help-content ul {
+        color: #cccccc;
+        margin-left: 20px;
+        line-height: 1.8;
+      }
+
+      .help-content li {
         margin-bottom: 10px;
       }
 
-      .info-box {
-        background: #dbeafe;
-        border: 1px solid #93c5fd;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        color: #1e40af;
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888888;
+        font-size: 1.5rem;
+        cursor: pointer;
       }
 
+      .close-btn:hover {
+        color: #ffffff;
+      }
+
+      /* No URLs State */
+      .no-urls {
+        text-align: center;
+        color: #888888;
+        padding: 40px 20px;
+      }
+
+      .no-urls-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+      }
+
+      .no-urls h4 {
+        color: #ffffff;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+      }
+
+      .no-urls p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      /* Responsive Design */
       @media (max-width: 768px) {
+        .navbar-nav {
+          display: none;
+        }
+
+        .main-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
         .container {
-          margin: 10px;
-          border-radius: 15px;
-        }
-
-        .header h1 {
-          font-size: 2em;
-        }
-
-        .main-content {
-          padding: 25px;
-        }
-
-        .section {
-          padding: 20px;
-        }
-
-        .url-item {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .url-text {
-          margin-bottom: 10px;
-          margin-right: 0;
+          padding: 20px 15px;
         }
       }
     </style>
   </head>
   <body>
+    <!-- Uniform Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="/" class="navbar-brand">🤖 Facebook Automation</a>
+        <ul class="navbar-nav">
+          <li><a href="/">🏠 Dashboard</a></li>
+          <li><a href="/add_user">👥 Add Users</a></li>
+          <li><a href="/groups">📊 Manage Groups</a></li>
+          <li><a href="/manage-group-urls" class="active">🔗 Group URLs</a></li>
+          <li><a href="/facebook-group-collections">📂 Collections</a></li>
+          <li><a href="/post-to-groups">📝 Post to Groups</a></li>
+          <li><a href="/send-facebook-messages">💬 Send Messages</a></li>
+          <li><a href="/message-history">📋 History</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <div class="container">
       <div class="header">
-        <h1>🔗 Manage Group URLs</h1>
-        <p>Add and manage Facebook group URLs for bulk posting</p>
+        <h1>🔗 Facebook Group URLs</h1>
+        <p class="subtitle">Manage Facebook group URLs for posting content</p>
+        <button class="help-btn" onclick="showHelp()">
+          ❓ How to Manage URLs
+        </button>
       </div>
 
-      <div class="main-content">
-        <!-- Stats Section -->
-        <div class="stats">
-          <h4>📊 Total Group URLs</h4>
-          <p>{{ group_urls|length }}</p>
-        </div>
+      <div id="successMessage" class="success-message"></div>
 
-        <!-- Add URLs Section -->
-        <div class="section">
-          <h3>➕ Add New Group URLs</h3>
-          <div class="info-box">
-            <strong>💡 Tip:</strong> Enter Facebook group URLs (one per line).
-            Example: https://www.facebook.com/groups/123456789
+      <div class="main-grid">
+        <!-- Add New URLs -->
+        <div class="section-card">
+          <h2 class="section-title">
+            <span>➕</span>
+            <span>Add Group URLs</span>
+          </h2>
+
+          <div class="stats-card">
+            <div class="stats-number">{{ group_urls|length }}</div>
+            <div class="stats-label">Total Group URLs</div>
           </div>
 
-          <form method="POST">
-            <input type="hidden" name="action" value="add_urls" />
-
+          <form id="addUrlForm" method="POST" onsubmit="addUrls(event)">
             <div class="form-group">
-              <label for="group_urls">🔗 Facebook Group URLs</label>
+              <label for="group_urls">Facebook Group URLs with Names</label>
               <textarea
                 id="group_urls"
                 name="group_urls"
-                placeholder="https://www.facebook.com/groups/123456789&#10;https://www.facebook.com/groups/987654321&#10;..."
+                placeholder="Format:&#10;Tech Enthusiasts Group&#10;https://www.facebook.com/groups/techgroup&#10;Marketing Professionals&#10;https://www.facebook.com/groups/marketingpros&#10;&#10;Or just URLs:&#10;https://www.facebook.com/groups/group1&#10;https://www.facebook.com/groups/group2"
                 required
               ></textarea>
             </div>
-
-            <button type="submit" class="submit-btn">➕ Add Group URLs</button>
+            <button type="submit" class="primary">🔗 Add URLs</button>
           </form>
         </div>
 
-        <!-- Existing URLs Section -->
-        <div class="section">
-          <h3>📋 Saved Group URLs ({{ group_urls|length }})</h3>
+        <!-- Existing URLs -->
+        <div class="section-card">
+          <h2 class="section-title">
+            <span>📋</span>
+            <span>Your Group URLs</span>
+          </h2>
 
-          {% if group_urls %}
           <div class="urls-list">
-            {% for url in group_urls %}
+            {% if group_urls %} {% for group_url in group_urls %}
             <div class="url-item">
-              <div class="url-text">{{ url }}</div>
-              <form method="POST" style="display: inline">
-                <input type="hidden" name="action" value="delete_url" />
-                <input type="hidden" name="url_to_delete" value="{{ url }}" />
+              <div class="url-text">
+                {% if group_url.name %}
+                <div
+                  style="font-size: 1.1rem; color: #ffffff; margin-bottom: 5px"
+                >
+                  {{ group_url.name }}
+                </div>
+                <div style="font-size: 0.9rem; color: #cccccc">
+                  {{ group_url.url }}
+                </div>
+                {% else %} {{ group_url.url }} {% endif %}
+              </div>
+              <div class="url-actions">
                 <button
-                  type="submit"
                   class="delete-btn"
-                  onclick="return confirm('Are you sure you want to delete this group URL?')"
+                  data-url-id="{{ group_url.id }}"
+                  data-url="{{ group_url.url }}"
+                  onclick="deleteUrl(this.dataset.urlId, this.dataset.url)"
                 >
                   🗑️ Delete
                 </button>
-              </form>
+              </div>
             </div>
-            {% endfor %}
+            {% endfor %} {% else %}
+            <div class="no-urls">
+              <div class="no-urls-icon">🔗</div>
+              <h4>No Group URLs Added</h4>
+              <p>
+                Add your first Facebook group URLs to start posting content to
+                groups.
+              </p>
+            </div>
+            {% endif %}
           </div>
-          {% else %}
-          <div class="empty-state">
-            <h4>📭 No Group URLs Added Yet</h4>
-            <p>
-              Add some Facebook group URLs above to get started with bulk
-              posting!
-            </p>
-          </div>
-          {% endif %}
         </div>
       </div>
+    </div>
 
-      <div class="nav-links">
-        <a href="/">🏠 Home</a>
-        <a href="/post-to-groups">📝 Post to Groups</a>
-        <a href="/facebook-group-collections">📂 Group Collections</a>
-        <a href="/add_user">👥 Manage Users</a>
-        <a href="/groups">🔧 Manage Groups</a>
+    <!-- Help Popup -->
+    <div id="helpPopup" class="help-popup">
+      <div class="help-content">
+        <button class="close-btn" onclick="hideHelp()">&times;</button>
+        <h3>🔗 How to Manage Group URLs</h3>
+        <ul>
+          <li>
+            <strong>Add URLs with Names:</strong> Enter a name on one line, then
+            the Facebook group URL on the next line
+          </li>
+          <li>
+            <strong>Add URLs Only:</strong> Enter Facebook group URLs directly
+            (one per line)
+          </li>
+          <li>
+            <strong>URL Format:</strong> Use full Facebook group URLs like
+            https://www.facebook.com/groups/groupname
+          </li>
+          <li>
+            <strong>Bulk Add:</strong> You can add multiple URLs at once by
+            entering them on separate lines
+          </li>
+          <li>
+            <strong>Delete URLs:</strong> Remove unwanted URLs using the delete
+            button
+          </li>
+          <li>
+            <strong>Use in Posting:</strong> These URLs will be available for
+            posting content and creating collections
+          </li>
+        </ul>
+        <p style="color: #888888; margin-top: 20px; font-size: 0.9rem">
+          💡 Tip: Adding names makes it easier to identify groups when creating
+          collections.
+        </p>
       </div>
     </div>
 
     <script>
-      // Auto-resize textarea
-      const textarea = document.getElementById("group_urls");
-      textarea.addEventListener("input", function () {
-        this.style.height = "auto";
-        this.style.height = Math.max(120, this.scrollHeight) + "px";
-      });
+      function showHelp() {
+        document.getElementById("helpPopup").style.display = "flex";
+      }
 
-      // URL validation on paste/input
-      textarea.addEventListener("input", function () {
-        const urls = this.value.split("\n");
-        let hasInvalidUrl = false;
+      function hideHelp() {
+        document.getElementById("helpPopup").style.display = "none";
+      }
 
-        urls.forEach((url) => {
-          if (url.trim() && !url.includes("facebook.com/groups/")) {
-            hasInvalidUrl = true;
+      function showSuccess(message) {
+        const successDiv = document.getElementById("successMessage");
+        successDiv.textContent = message;
+        successDiv.style.display = "block";
+        setTimeout(() => {
+          successDiv.style.display = "none";
+        }, 5000);
+      }
+
+      function addUrls(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+
+        fetch("/manage-group-urls", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.text())
+          .then((html) => {
+            showSuccess("✅ Group URLs added successfully!");
+
+            // Clear the form
+            document.getElementById("group_urls").value = "";
+
+            // Reload the page to show the new URLs
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            showSuccess("❌ Error adding URLs. Please try again.");
+          });
+      }
+
+      function deleteUrl(urlId, url) {
+        if (
+          confirm(
+            `🗑️ Are you sure you want to delete this URL?\n\n"${url}"\n\nThis action cannot be undone.`
+          )
+        ) {
+          const formData = new FormData();
+          formData.append("action", "delete_url");
+          formData.append("url_id", urlId);
+
+          fetch("/manage-group-urls", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.text())
+            .then(() => {
+              showSuccess("✅ URL deleted successfully!");
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              showSuccess("❌ Error deleting URL. Please try again.");
+            });
+        }
+      }
+
+      // Close popup when clicking outside
+      document
+        .getElementById("helpPopup")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            hideHelp();
           }
         });
 
-        if (hasInvalidUrl) {
-          this.style.borderColor = "#ef4444";
-          this.title = "Please enter valid Facebook group URLs";
-        } else {
-          this.style.borderColor = "#d1d5db";
-          this.title = "";
+      // Close popup with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          hideHelp();
         }
       });
     </script>

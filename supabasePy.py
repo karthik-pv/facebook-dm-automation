@@ -16,27 +16,47 @@ class SupabaseClient:
 
         self.client = SupabaseClient._instance
 
-    def add_url(self, url: str):
+    def add_url(self, url: str, name: str = None):
         data = {"url": url}
+        if name:
+            data["name"] = name
         response = self.client.table("facebook_profile_urls").insert(data).execute()
         return response.data
 
     def get_all_urls(self):
-        response = self.client.table("facebook_profile_urls").select("url").execute()
+        response = (
+            self.client.table("facebook_profile_urls").select("url, name").execute()
+        )
         returnable = []
         for item in response.data:
             if "url" in item:
-                returnable.append(item["url"])
+                returnable.append({"url": item["url"], "name": item.get("name", "")})
         return returnable
 
     # Group management methods
     def get_all_groups(self):
         response = self.client.table("groups").select("*").execute()
-        return response.data
+
+        groups = []
+        for group in response.data:
+            # Get user count for this group
+            user_count_response = (
+                self.client.table("group_mapping")
+                .select("profile_id", count="exact")
+                .eq("group_id", group["id"])
+                .execute()
+            )
+
+            group["user_count"] = (
+                user_count_response.count if user_count_response.count else 0
+            )
+            groups.append(group)
+
+        return groups
 
     def get_all_profile_urls_with_ids(self):
         response = (
-            self.client.table("facebook_profile_urls").select("id, url").execute()
+            self.client.table("facebook_profile_urls").select("id, url, name").execute()
         )
         return response.data
 
@@ -122,28 +142,59 @@ class SupabaseClient:
         return response.data
 
     # Facebook Group URLs management methods
-    def add_group_url(self, url: str):
-        """Add a Facebook group URL to the database"""
+    def add_group_url(self, url: str, name: str = None):
+        """Add a Facebook group URL to the database with optional name"""
         data = {"url": url}
+        if name:
+            data["name"] = name
         response = self.client.table("facebook_group_urls").insert(data).execute()
         return response.data
 
     def get_all_group_urls(self):
-        """Get all Facebook group URLs"""
-        response = self.client.table("facebook_group_urls").select("url").execute()
+        """Get all Facebook group URLs with names"""
+        response = (
+            self.client.table("facebook_group_urls").select("url, name").execute()
+        )
         returnable = []
         for item in response.data:
             if "url" in item:
-                returnable.append(item["url"])
+                returnable.append({"url": item["url"], "name": item.get("name", "")})
         return returnable
 
     def get_all_group_urls_with_ids(self):
-        """Get all Facebook group URLs with their IDs"""
-        response = self.client.table("facebook_group_urls").select("id, url").execute()
+        """Get all Facebook group URLs with their IDs and names"""
+        response = (
+            self.client.table("facebook_group_urls").select("id, url, name").execute()
+        )
         return response.data
 
+    def delete_group_url_by_id(self, url_id: int):
+        """Delete a Facebook group URL by ID"""
+        response = (
+            self.client.table("facebook_group_urls").delete().eq("id", url_id).execute()
+        )
+        return response.data
+
+    def update_group_url(self, url_id: int, url: str = None, name: str = None):
+        """Update a group URL and/or name"""
+        data = {}
+        if url:
+            data["url"] = url
+        if name:
+            data["name"] = name
+
+        if data:
+            response = (
+                self.client.table("facebook_group_urls")
+                .update(data)
+                .eq("id", url_id)
+                .execute()
+            )
+            return response.data
+        return None
+
     def delete_group_url(self, url: str):
-        """Delete a Facebook group URL from the database"""
+        """Delete a Facebook group URL from the database (legacy method)"""
         response = (
             self.client.table("facebook_group_urls").delete().eq("url", url).execute()
         )
@@ -299,3 +350,31 @@ class SupabaseClient:
         except Exception as e:
             print(f"Error logging message: {e}")
             return None
+
+    def delete_user(self, user_id: int):
+        """Delete a user by ID"""
+        response = (
+            self.client.table("facebook_profile_urls")
+            .delete()
+            .eq("id", user_id)
+            .execute()
+        )
+        return response.data
+
+    def update_user(self, user_id: int, url: str = None, name: str = None):
+        """Update a user's URL and/or name"""
+        data = {}
+        if url:
+            data["url"] = url
+        if name:
+            data["name"] = name
+
+        if data:
+            response = (
+                self.client.table("facebook_profile_urls")
+                .update(data)
+                .eq("id", user_id)
+                .execute()
+            )
+            return response.data
+        return None

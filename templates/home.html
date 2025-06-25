@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Facebook Automation Hub</title>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🏠 Facebook Automation Dashboard</title>
     <style>
       * {
         margin: 0;
@@ -11,225 +12,233 @@
       }
 
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        background: linear-gradient(
-          135deg,
-          #0c0c0c 0%,
-          #1a1a2e 50%,
-          #16213e 100%
-        );
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #000000;
         color: #ffffff;
-        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* Uniform Navigation Bar */
+      .navbar {
+        background: #111111;
+        border-bottom: 1px solid #333333;
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 25px;
+        list-style: none;
+      }
+
+      .navbar-nav a {
+        color: #cccccc;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .navbar-nav a:hover {
+        color: #ffffff;
+        background: #333333;
+      }
+
+      .navbar-nav a.active {
+        color: #ffffff;
+        background: #444444;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 15px;
+      }
+
+      .header .subtitle {
+        font-size: 1.2rem;
+        color: #888888;
+        margin-bottom: 20px;
+      }
+
+      /* Help Button */
+      .help-btn {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 10px;
+      }
+
+      .help-btn:hover {
+        background: #444444;
+      }
+
+      /* Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+      }
+
+      .dashboard-card {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
         position: relative;
       }
 
-      /* Animated background particles */
-      body::before {
-        content: "";
-        position: absolute;
+      .dashboard-card:hover {
+        background: #222222;
+        border-color: #555555;
+        transform: translateY(-2px);
+      }
+
+      .dashboard-card .icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        display: block;
+      }
+
+      .dashboard-card h3 {
+        font-size: 1.3rem;
+        color: #ffffff;
+        margin-bottom: 15px;
+      }
+
+      .dashboard-card p {
+        color: #888888;
+        margin-bottom: 25px;
+        line-height: 1.6;
+      }
+
+      .dashboard-card .btn {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+
+      .dashboard-card .btn:hover {
+        background: #444444;
+        border-color: #777777;
+      }
+
+      /* Helper Popup Styles */
+      .help-popup {
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: radial-gradient(
-            circle at 20% 80%,
-            rgba(120, 119, 198, 0.3) 0%,
-            transparent 50%
-          ),
-          radial-gradient(
-            circle at 80% 20%,
-            rgba(255, 119, 198, 0.15) 0%,
-            transparent 50%
-          );
-        z-index: -1;
-      }
-
-      .container {
-        text-align: center;
-        z-index: 10;
-        max-width: 800px;
-        padding: 40px 20px;
-      }
-
-      .logo {
-        margin-bottom: 20px;
-        animation: fadeInUp 1s ease-out;
-      }
-
-      .logo h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
-        margin-bottom: 10px;
-        letter-spacing: -2px;
-      }
-
-      .subtitle {
-        font-size: 1.2rem;
-        color: #a0a0a0;
-        margin-bottom: 50px;
-        animation: fadeInUp 1s ease-out 0.2s both;
-      }
-
-      .button-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 40px;
-        animation: fadeInUp 1s ease-out 0.4s both;
-      }
-
-      .button {
-        position: relative;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-        padding: 25px 30px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        border-radius: 20px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
         justify-content: center;
-        gap: 15px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        overflow: hidden;
+        align-items: center;
+      }
+
+      .help-content {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .help-content h3 {
+        color: #ffffff;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+      }
+
+      .help-content ul {
+        color: #cccccc;
+        margin-left: 20px;
+        line-height: 1.8;
+      }
+
+      .help-content li {
+        margin-bottom: 10px;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888888;
+        font-size: 1.5rem;
         cursor: pointer;
       }
 
-      .button::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.1),
-          transparent
-        );
-        transition: left 0.5s;
-      }
-
-      .button:hover::before {
-        left: 100%;
-      }
-
-      .button:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-          0 0 30px rgba(102, 126, 234, 0.3);
-        border-color: rgba(102, 126, 234, 0.5);
-      }
-
-      .button .icon {
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
-      }
-
-      .button:hover .icon {
-        transform: scale(1.2) rotate(10deg);
-      }
-
-      .button.primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-      }
-
-      .button.primary:hover {
-        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4),
-          0 0 30px rgba(102, 126, 234, 0.6);
-      }
-
-      .stats {
-        margin-top: 60px;
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        flex-wrap: wrap;
-        animation: fadeInUp 1s ease-out 0.6s both;
-      }
-
-      .stat-item {
-        text-align: center;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        min-width: 120px;
-      }
-
-      .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #667eea;
-        display: block;
-      }
-
-      .stat-label {
-        font-size: 0.9rem;
-        color: #a0a0a0;
-        margin-top: 5px;
-      }
-
-      .footer {
-        position: absolute;
-        bottom: 20px;
-        width: 100%;
-        text-align: center;
-        color: #666;
-        font-size: 0.9rem;
-        animation: fadeIn 1s ease-out 1s both;
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      .close-btn:hover {
+        color: #ffffff;
       }
 
       /* Responsive Design */
       @media (max-width: 768px) {
-        .logo h1 {
-          font-size: 2.5rem;
+        .navbar-nav {
+          display: none;
         }
 
-        .button-grid {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .dashboard-grid {
           grid-template-columns: 1fr;
-          gap: 20px;
-        }
-
-        .stats {
           gap: 20px;
         }
 
@@ -237,89 +246,158 @@
           padding: 20px 15px;
         }
       }
-
-      @media (max-width: 480px) {
-        .logo h1 {
-          font-size: 2rem;
-        }
-
-        .subtitle {
-          font-size: 1rem;
-        }
-
-        .button {
-          padding: 20px 25px;
-          font-size: 1rem;
-        }
-      }
     </style>
   </head>
   <body>
+    <!-- Uniform Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="/" class="navbar-brand">🤖 Facebook Automation</a>
+        <ul class="navbar-nav">
+          <li><a href="/" class="active">🏠 Dashboard</a></li>
+          <li><a href="/add_user">👥 Add Users</a></li>
+          <li><a href="/groups">📊 Manage Groups</a></li>
+          <li><a href="/manage-group-urls">🔗 Group URLs</a></li>
+          <li><a href="/facebook-group-collections">📂 Collections</a></li>
+          <li><a href="/post-to-groups">📝 Post to Groups</a></li>
+          <li><a href="/send-facebook-messages">💬 Send Messages</a></li>
+          <li><a href="/message-history">📋 History</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <div class="container">
-      <div class="logo">
-        <h1>🤖 Automation Hub</h1>
-        <p class="subtitle">Advanced Facebook Messaging & Group Management</p>
+      <div class="header">
+        <h1>🤖 Facebook Automation Dashboard</h1>
+        <p class="subtitle">Streamline your Facebook marketing and messaging</p>
+        <button class="help-btn" onclick="showHelp()">
+          ❓ How to Use This App
+        </button>
       </div>
 
-      <div class="button-grid">
-        <a
-          class="button primary"
-          href="{{ url_for('send_facebook_messages_route') }}"
-        >
-          <span class="icon">📩</span>
-          <span>Send Messages</span>
-        </a>
-
-        <a class="button" href="{{ url_for('groups_route') }}">
+      <div class="dashboard-grid">
+        <!-- Add Users Card -->
+        <div class="dashboard-card">
           <span class="icon">👥</span>
-          <span>Manage Groups</span>
-        </a>
+          <h3>Add Facebook Users</h3>
+          <p>Import Facebook profile URLs to build your contact database</p>
+          <a href="/add_user" class="btn">Add Users</a>
+        </div>
 
-        <a class="button" href="{{ url_for('add_user_route') }}">
-          <span class="icon">➕</span>
-          <span>Add Users</span>
-        </a>
+        <!-- Manage Groups Card -->
+        <div class="dashboard-card">
+          <span class="icon">📊</span>
+          <h3>Manage User Groups</h3>
+          <p>Create groups and organize users for targeted messaging</p>
+          <a href="/groups" class="btn">Manage Groups</a>
+        </div>
 
-        <a class="button" href="{{ url_for('manage_group_urls_route') }}">
+        <!-- Group URLs Card -->
+        <div class="dashboard-card">
           <span class="icon">🔗</span>
-          <span>Manage Group URLs</span>
-        </a>
+          <h3>Facebook Group URLs</h3>
+          <p>Manage Facebook group URLs for posting content</p>
+          <a href="/manage-group-urls" class="btn">Manage URLs</a>
+        </div>
 
-        <a
-          class="button"
-          href="{{ url_for('facebook_group_collections_route') }}"
-        >
+        <!-- Collections Card -->
+        <div class="dashboard-card">
           <span class="icon">📂</span>
-          <span>Group Collections</span>
-        </a>
+          <h3>Group Collections</h3>
+          <p>Create collections of Facebook groups for organized posting</p>
+          <a href="/facebook-group-collections" class="btn">Collections</a>
+        </div>
 
-        <a class="button" href="{{ url_for('post_to_groups_route') }}">
+        <!-- Post to Groups Card -->
+        <div class="dashboard-card">
           <span class="icon">📝</span>
-          <span>Post to Groups</span>
-        </a>
+          <h3>Post to Groups</h3>
+          <p>Post content to Facebook groups with media support</p>
+          <a href="/post-to-groups" class="btn">Post Content</a>
+        </div>
 
-        <a class="button" href="{{ url_for('message_history_route') }}">
+        <!-- Send Messages Card -->
+        <div class="dashboard-card">
+          <span class="icon">💬</span>
+          <h3>Send Messages</h3>
+          <p>Send personalized messages to users or groups</p>
+          <a href="/send-facebook-messages" class="btn">Send Messages</a>
+        </div>
+
+        <!-- Message History Card -->
+        <div class="dashboard-card">
           <span class="icon">📋</span>
-          <span>Message History</span>
-        </a>
-      </div>
-
-      <div class="stats">
-        <div class="stat-item">
-          <span class="stat-number">∞</span>
-          <div class="stat-label">Messages</div>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">🔄</span>
-          <div class="stat-label">Automated</div>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">⚡</span>
-          <div class="stat-label">Fast</div>
+          <h3>Message History</h3>
+          <p>View and track all your messaging activities</p>
+          <a href="/message-history" class="btn">View History</a>
         </div>
       </div>
     </div>
 
-    <div class="footer">Powered by Advanced Automation Technology</div>
+    <!-- Help Popup -->
+    <div id="helpPopup" class="help-popup">
+      <div class="help-content">
+        <button class="close-btn" onclick="hideHelp()">&times;</button>
+        <h3>🚀 How to Use Facebook Automation</h3>
+        <ul>
+          <li>
+            <strong>Step 1:</strong> Add Facebook profile URLs using "Add Users"
+          </li>
+          <li>
+            <strong>Step 2:</strong> Create user groups in "Manage Groups" to
+            organize contacts
+          </li>
+          <li>
+            <strong>Step 3:</strong> Add Facebook group URLs in "Group URLs" for
+            posting
+          </li>
+          <li>
+            <strong>Step 4:</strong> Create collections in "Collections" to
+            group related Facebook groups
+          </li>
+          <li>
+            <strong>Step 5:</strong> Use "Post to Groups" to share content to
+            Facebook groups
+          </li>
+          <li>
+            <strong>Step 6:</strong> Use "Send Messages" to message users
+            individually
+          </li>
+          <li>
+            <strong>Step 7:</strong> Check "History" to track all activities
+          </li>
+        </ul>
+        <p style="color: #888888; margin-top: 20px; font-size: 0.9rem">
+          💡 Tip: Each page has detailed instructions and tooltips to guide you
+          through the process.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function showHelp() {
+        document.getElementById("helpPopup").style.display = "flex";
+      }
+
+      function hideHelp() {
+        document.getElementById("helpPopup").style.display = "none";
+      }
+
+      // Close popup when clicking outside
+      document
+        .getElementById("helpPopup")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            hideHelp();
+          }
+        });
+
+      // Close popup with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          hideHelp();
+        }
+      });
+    </script>
   </body>
 </html>

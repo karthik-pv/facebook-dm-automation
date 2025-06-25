@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📝 Post to Facebook Groups - Facebook Automation</title>
+    <title>📝 Post to Groups - Facebook Automation</title>
     <style>
       * {
         margin: 0;
@@ -13,529 +13,829 @@
 
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #000000;
+        color: #ffffff;
         min-height: 100vh;
-        color: #333;
-        padding: 20px;
       }
 
-      .container {
-        max-width: 800px;
+      /* Uniform Navigation Bar */
+      .navbar {
+        background: #111111;
+        border-bottom: 1px solid #333333;
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-container {
+        max-width: 1200px;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 25px;
+        list-style: none;
+      }
+
+      .navbar-nav a {
+        color: #cccccc;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .navbar-nav a:hover {
+        color: #ffffff;
+        background: #333333;
+      }
+
+      .navbar-nav a.active {
+        color: #ffffff;
+        background: #444444;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
       }
 
       .header {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        padding: 30px;
         text-align: center;
+        margin-bottom: 40px;
       }
 
       .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
+        font-size: 2.5rem;
         font-weight: 700;
-      }
-
-      .header p {
-        font-size: 1.1em;
-        opacity: 0.9;
-      }
-
-      .main-card {
-        padding: 40px;
-      }
-
-      .info-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        color: white;
-      }
-
-      .info-section h3 {
-        font-size: 1.4em;
+        color: #ffffff;
         margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
       }
 
-      .info-section ul {
-        list-style: none;
-        padding-left: 0;
+      .header .subtitle {
+        font-size: 1.2rem;
+        color: #888888;
+        margin-bottom: 20px;
       }
 
-      .info-section li {
-        margin: 8px 0;
-        padding-left: 20px;
-        position: relative;
+      .help-btn {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
       }
 
-      .info-section li:before {
-        content: "✓";
-        position: absolute;
-        left: 0;
-        color: #4ade80;
-        font-weight: bold;
+      .help-btn:hover {
+        background: #444444;
+      }
+
+      /* Posting Form */
+      .posting-form {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 40px;
       }
 
       .form-section {
-        background: #f8fafc;
-        border-radius: 15px;
-        padding: 30px;
-        border: 2px solid #e2e8f0;
+        margin-bottom: 30px;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        color: #ffffff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
 
       .form-group {
         margin-bottom: 25px;
       }
 
-      .form-group label {
+      label {
         display: block;
         margin-bottom: 8px;
-        color: #374151;
         font-weight: 600;
-        font-size: 1.1em;
+        color: #ffffff;
+        font-size: 1rem;
       }
 
-      .form-group input,
-      .form-group textarea,
-      .form-group select {
+      input[type="text"],
+      input[type="file"],
+      select,
+      textarea {
         width: 100%;
-        padding: 15px;
-        border: 2px solid #d1d5db;
-        border-radius: 12px;
-        font-size: 1em;
+        padding: 12px 16px;
+        font-size: 1rem;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        background: #000000;
+        color: #ffffff;
         transition: all 0.3s ease;
-        background: white;
       }
 
-      .form-group input:focus,
-      .form-group textarea:focus,
-      .form-group select:focus {
+      input[type="text"]:focus,
+      input[type="file"]:focus,
+      select:focus,
+      textarea:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
+        border-color: #555555;
       }
 
-      .form-group select {
-        cursor: pointer;
+      input[type="text"]::placeholder,
+      textarea::placeholder {
+        color: #666666;
       }
 
-      .form-group textarea {
-        height: 120px;
+      select option {
+        background: #000000;
+        color: #ffffff;
+      }
+
+      textarea {
+        min-height: 120px;
         resize: vertical;
+        font-family: inherit;
       }
 
+      /* Toggle Sections */
+      .url-input-group {
+        display: none;
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 15px;
+      }
+
+      .url-input-group.active {
+        display: block;
+      }
+
+      /* File Input Styling */
       .file-input-wrapper {
         position: relative;
         display: inline-block;
         width: 100%;
       }
 
-      .file-input-display {
-        background: #f1f5f9;
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        padding: 20px;
+      .file-input-wrapper input[type="file"] {
+        opacity: 0;
+        position: absolute;
+        z-index: -1;
+      }
+
+      .file-input-label {
+        display: block;
+        padding: 12px 16px;
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        cursor: pointer;
         text-align: center;
-        cursor: pointer;
         transition: all 0.3s ease;
       }
 
-      .file-input-display:hover {
-        border-color: #667eea;
-        background: #e0e7ff;
+      .file-input-label:hover {
+        background: #333333;
+        border-color: #555555;
       }
 
-      .file-input-display.has-file {
-        border-color: #10b981;
-        background: #d1fae5;
-        color: #047857;
+      .file-name {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #888888;
       }
 
-      .submit-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 15px 40px;
-        border: none;
-        border-radius: 12px;
-        font-size: 1.1em;
+      /* Buttons */
+      button {
+        background: #333333;
+        color: #ffffff;
+        border: 1px solid #555555;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
         font-weight: 600;
-        cursor: pointer;
         transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 20px;
       }
 
-      .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      button:hover {
+        background: #444444;
+        border-color: #777777;
       }
 
-      .submit-btn:disabled {
-        opacity: 0.6;
+      button:disabled {
+        opacity: 0.5;
         cursor: not-allowed;
-        transform: none;
       }
 
-      .nav-links {
-        padding: 20px 40px;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
-        text-align: center;
+      button.primary {
+        background: #4a5568;
+        border-color: #718096;
+        padding: 15px 30px;
+        font-size: 1.1rem;
       }
 
-      .nav-links a {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-        margin: 0 15px;
-        transition: color 0.3s ease;
+      button.primary:hover {
+        background: #2d3748;
+        border-color: #4a5568;
       }
 
-      .nav-links a:hover {
-        color: #4f46e5;
+      /* Status Display */
+      .status-display {
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .status-message {
-        margin-top: 20px;
-        padding: 15px;
-        border-radius: 8px;
-        display: none;
+        color: #cccccc;
+        text-align: center;
+        font-size: 1rem;
       }
 
       .status-message.success {
-        background: #d1fae5;
-        color: #047857;
-        border: 1px solid #10b981;
+        color: #68d391;
       }
 
       .status-message.error {
-        background: #fee2e2;
-        color: #dc2626;
-        border: 1px solid #ef4444;
+        color: #fc8181;
       }
 
+      .status-message.processing {
+        color: #63b3ed;
+      }
+
+      /* Progress Indicator */
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: #333333;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #4a5568;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      /* Helper Popup */
+      .help-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .help-content {
+        background: #111111;
+        border: 1px solid #333333;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 700px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .help-content h3 {
+        color: #ffffff;
+        margin-bottom: 20px;
+      }
+
+      .help-content ul {
+        color: #cccccc;
+        margin-left: 20px;
+        line-height: 1.8;
+      }
+
+      .help-content li {
+        margin-bottom: 10px;
+      }
+
+      .help-content .tip {
+        background: #222222;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        color: #888888;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #888888;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .close-btn:hover {
+        color: #ffffff;
+      }
+
+      /* Responsive Design */
       @media (max-width: 768px) {
+        .navbar-nav {
+          display: none;
+        }
+
         .container {
-          margin: 10px;
-          border-radius: 15px;
+          padding: 20px 15px;
+        }
+
+        .posting-form {
+          padding: 25px 20px;
         }
 
         .header h1 {
-          font-size: 2em;
-        }
-
-        .main-card {
-          padding: 25px;
-        }
-
-        .form-section {
-          padding: 20px;
+          font-size: 2rem;
         }
       }
     </style>
   </head>
   <body>
+    <!-- Uniform Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="/" class="navbar-brand">🤖 Facebook Automation</a>
+        <ul class="navbar-nav">
+          <li><a href="/">🏠 Dashboard</a></li>
+          <li><a href="/add_user">👥 Add Users</a></li>
+          <li><a href="/groups">📊 Manage Groups</a></li>
+          <li><a href="/manage-group-urls">🔗 Group URLs</a></li>
+          <li><a href="/facebook-group-collections">📂 Collections</a></li>
+          <li>
+            <a href="/post-to-groups" class="active">📝 Post to Groups</a>
+          </li>
+          <li><a href="/send-facebook-messages">💬 Send Messages</a></li>
+          <li><a href="/message-history">📋 History</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <div class="container">
       <div class="header">
         <h1>📝 Post to Facebook Groups</h1>
-        <p>Automate posts to Facebook groups with text and media</p>
+        <p class="subtitle">
+          Share your content across multiple Facebook groups efficiently
+        </p>
+        <button class="help-btn" onclick="showHelp()">
+          ❓ How to Post to Groups
+        </button>
       </div>
 
-      <div class="main-card">
-        <div class="info-section">
-          <h3>📋 How to Post to Facebook Groups</h3>
-          <ul>
-            <li>
-              Provide the Facebook group URL (e.g.,
-              https://www.facebook.com/groups/123456789)
-            </li>
-            <li>Enter your post content in the text area</li>
-            <li>
-              Optionally, provide a file path for media upload (photos/videos)
-            </li>
-            <li>Click "Start Group Posting" to begin the automation process</li>
-            <li>Log in to Facebook manually when the browser opens</li>
-          </ul>
-        </div>
-
-        <div class="form-section">
-          <form id="groupPostForm">
-            <!-- Post Type Selection -->
-            <div class="form-group">
-              <label for="posting_type">📋 Posting Type *</label>
-              <select
-                id="posting_type"
-                name="posting_type"
-                required
-                onchange="toggleUrlInput()"
-              >
-                <option value="">Choose posting method...</option>
-                <option value="single_manual">
-                  📝 Single Group (Manual URL)
-                </option>
-                <option value="single_saved">
-                  🔗 Single Group (From Saved)
-                </option>
-                <option value="collection">📂 Post to Collection</option>
-                <option value="all_groups">
-                  🌟 All Saved Groups (Bulk Post)
-                </option>
-              </select>
-            </div>
-
-            <!-- Manual URL Input (shown for single_manual) -->
-            <div class="form-group" id="manual_url_group" style="display: none">
-              <label for="group_url">📍 Facebook Group URL *</label>
-              <input
-                type="url"
-                id="group_url"
-                name="group_url"
-                placeholder="https://www.facebook.com/groups/123456789"
-                pattern="https://www\.facebook\.com/groups/.*"
-                title="Please enter a valid Facebook group URL"
-              />
-            </div>
-
-            <!-- Saved URLs Selection (shown for single_saved) -->
-            <div class="form-group" id="saved_url_group" style="display: none">
-              <label for="selected_group_url">🔗 Select Saved Group *</label>
-              <select id="selected_group_url" name="selected_group_url">
-                <option value="">Choose a saved group...</option>
-                {% for url in group_urls %}
-                <option value="{{ url }}">{{ url }}</option>
-                {% endfor %}
-              </select>
-              {% if not group_urls %}
-              <small style="color: #ef4444; margin-top: 5px; display: block">
-                No saved group URLs found.
-                <a href="/manage-group-urls" style="color: #667eea"
-                  >Add some group URLs first</a
-                >
-              </small>
-              {% endif %}
-            </div>
-
-            <!-- Collection Selection (shown for collection) -->
-            <div class="form-group" id="collection_group" style="display: none">
-              <label for="selected_collection">📂 Select Collection *</label>
-              <select id="selected_collection" name="selected_collection">
-                <option value="">Choose a collection...</option>
-                {% for collection in collections %}
-                <option value="{{ collection.id }}">
-                  📂 {{ collection.name }} ({{ collection.url_count }} groups)
-                </option>
-                {% endfor %}
-              </select>
-              {% if not collections %}
-              <small style="color: #ef4444; margin-top: 5px; display: block">
-                No collections found.
-                <a href="/facebook-group-collections" style="color: #667eea"
-                  >Create collections first</a
-                >
-              </small>
-              {% endif %}
-            </div>
-
-            <!-- Bulk posting info (shown for all_groups) -->
-            <div class="form-group" id="bulk_info_group" style="display: none">
-              <div
-                style="
-                  background: #dbeafe;
-                  border: 1px solid #93c5fd;
-                  border-radius: 8px;
-                  padding: 15px;
-                  color: #1e40af;
-                "
-              >
-                <strong>🌟 Bulk Posting Mode</strong><br />
-                This will post to all {{ group_urls|length }} saved group URLs
-                with random delays between posts. {% if not group_urls %}
-                <br /><span style="color: #ef4444"
-                  >⚠️ No saved group URLs found.
-                  <a href="/manage-group-urls" style="color: #667eea"
-                    >Add some group URLs first</a
-                  ></span
-                >
-                {% endif %}
-              </div>
-            </div>
+      <div class="posting-form">
+        <form id="postingForm" onsubmit="submitForm(event)">
+          <!-- Message Content Section -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <span>✍️</span>
+              <span>Message Content</span>
+            </h3>
 
             <div class="form-group">
-              <label for="post_text">✍️ Post Content *</label>
+              <label for="message">Your Message</label>
               <textarea
-                id="post_text"
-                name="post_text"
+                id="message"
+                name="message"
+                placeholder="Write your message here... (supports text, emojis, and hashtags)"
                 required
-                placeholder="Enter your post content here..."
               ></textarea>
             </div>
 
             <div class="form-group">
-              <label for="media_file_path">🖼️ Media File Path (Optional)</label>
-              <input
-                type="text"
-                id="media_file_path"
-                name="media_file_path"
-                placeholder="C:\Users\YourName\Pictures\image.jpg"
-              />
-              <small style="color: #6b7280; margin-top: 5px; display: block">
-                Full path to your image or video file (leave empty if no media)
-              </small>
+              <label for="media_file">Media File (Optional)</label>
+              <div class="file-input-wrapper">
+                <input
+                  type="file"
+                  id="media_file"
+                  name="media_file"
+                  accept="image/*,video/*"
+                  onchange="updateFileName(this)"
+                />
+                <label for="media_file" class="file-input-label">
+                  📎 Choose Image or Video File
+                </label>
+                <div class="file-name" id="fileName"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Posting Strategy Section -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <span>🎯</span>
+              <span>Posting Strategy</span>
+            </h3>
+
+            <div class="form-group">
+              <label for="posting_type">How do you want to post?</label>
+              <select
+                id="posting_type"
+                name="posting_type"
+                onchange="toggleUrlInput()"
+                required
+              >
+                <option value="">Choose posting method...</option>
+                <option value="manual">
+                  🖊️ Post to Single Group (Manual URL)
+                </option>
+                <option value="saved">📋 Post to Single Saved Group</option>
+                <option value="collection">📂 Post to Collection</option>
+                <option value="bulk">🚀 Post to All Groups</option>
+              </select>
             </div>
 
-            <button type="submit" class="submit-btn" id="submitBtn">
-              🚀 Start Group Posting
-            </button>
-          </form>
+            <!-- Manual URL Input -->
+            <div id="manualUrlGroup" class="url-input-group">
+              <div class="form-group">
+                <label for="manual_url">Facebook Group URL</label>
+                <input
+                  type="text"
+                  id="manual_url"
+                  name="manual_url"
+                  placeholder="https://www.facebook.com/groups/your-group-name"
+                />
+              </div>
+            </div>
 
-          <div id="statusMessage" class="status-message"></div>
+            <!-- Saved URLs Selection -->
+            <div id="savedUrlGroup" class="url-input-group">
+              <div class="form-group">
+                <label for="selected_group_url">Select Saved Group</label>
+                <select id="selected_group_url" name="selected_group_url">
+                  <option value="">Choose a saved group...</option>
+                  {% for group_url in group_urls %}
+                  <option value="{{ group_url.url }}">
+                    {{ group_url.url }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Collection Selection -->
+            <div id="collectionGroup" class="url-input-group">
+              <div class="form-group">
+                <label for="selected_collection">Select Collection</label>
+                <select id="selected_collection" name="selected_collection">
+                  <option value="">Choose a collection...</option>
+                  {% for collection in collections %}
+                  <option value="{{ collection.id }}">
+                    📂 {{ collection.name }} ({{ collection.url_count }} groups)
+                  </option>
+                  {% endfor %}
+                </select>
+                {% if not collections %}
+                <p style="color: #888888; margin-top: 8px; font-size: 0.9rem">
+                  No collections found.
+                  <a href="/facebook-group-collections" style="color: #4a5568"
+                    >Create one here</a
+                  >.
+                </p>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Bulk Posting Info -->
+            <div id="bulkInfoGroup" class="url-input-group">
+              <div
+                style="
+                  background: #2d3748;
+                  border: 1px solid #4a5568;
+                  border-radius: 8px;
+                  padding: 15px;
+                "
+              >
+                <h4 style="color: #ffffff; margin-bottom: 10px">
+                  🚀 Bulk Posting
+                </h4>
+                <p style="color: #cccccc; margin-bottom: 8px">
+                  This will post your message to
+                  <strong>{{ group_urls|length }} saved groups</strong>.
+                </p>
+                <p style="color: #888888; font-size: 0.9rem">
+                  ⚠️ Each post will have a 35-45 second delay to avoid spam
+                  detection.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div style="text-align: center; margin-top: 40px">
+            <button type="submit" class="primary" id="submitBtn">
+              📤 Start Posting
+            </button>
+          </div>
+        </form>
+
+        <!-- Status Display -->
+        <div class="status-display">
+          <div class="status-message" id="statusMessage">
+            Ready to post! Choose your posting strategy above.
+          </div>
+        </div>
+        <div class="progress-bar" id="progressBar" style="display: none">
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
+    </div>
 
-      <div class="nav-links">
-        <a href="/">🏠 Home</a>
-        <a href="/manage-group-urls">🔗 Manage Group URLs</a>
-        <a href="/facebook-group-collections">📂 Group Collections</a>
-        <a href="/send-facebook-messages">💬 Send Messages</a>
-        <a href="/groups">👥 Groups</a>
-        <a href="/message-history">📊 History</a>
+    <!-- Help Popup -->
+    <div id="helpPopup" class="help-popup">
+      <div class="help-content">
+        <button class="close-btn" onclick="hideHelp()">&times;</button>
+        <h3>📝 How to Post to Facebook Groups</h3>
+        <ul>
+          <li>
+            <strong>Write Your Message:</strong> Enter the content you want to
+            share
+          </li>
+          <li>
+            <strong>Add Media (Optional):</strong> Upload an image or video to
+            accompany your post
+          </li>
+          <li>
+            <strong>Choose Posting Method:</strong>
+            <ul style="margin-top: 8px">
+              <li>
+                <strong>Single Group (Manual):</strong> Enter a Facebook group
+                URL directly
+              </li>
+              <li>
+                <strong>Single Saved Group:</strong> Choose from your saved
+                group URLs
+              </li>
+              <li>
+                <strong>Collection:</strong> Post to a specific collection of
+                groups
+              </li>
+              <li>
+                <strong>All Groups:</strong> Post to every saved group (bulk
+                posting)
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Submit:</strong> Click "Start Posting" to begin the process
+          </li>
+        </ul>
+
+        <div class="tip">
+          <strong>💡 Pro Tips:</strong><br />
+          • Use collections to organize groups by topic or audience<br />
+          • Bulk posting includes automatic delays to prevent spam detection<br />
+          • You'll need to login to Facebook when the browser opens<br />
+          • Keep the browser window open during posting
+        </div>
       </div>
     </div>
 
     <script>
-      // Form validation and URL input toggle
-      function toggleUrlInput() {
-        const postingType = document.getElementById("posting_type").value;
-        const manualGroup = document.getElementById("manual_url_group");
-        const savedGroup = document.getElementById("saved_url_group");
-        const collectionGroup = document.getElementById("collection_group");
-        const bulkGroup = document.getElementById("bulk_info_group");
-        const groupUrlInput = document.getElementById("group_url");
-        const selectedGroupInput =
-          document.getElementById("selected_group_url");
-        const selectedCollectionInput = document.getElementById(
-          "selected_collection"
-        );
+      function showHelp() {
+        document.getElementById("helpPopup").style.display = "flex";
+      }
 
-        // Hide all groups first
-        manualGroup.style.display = "none";
-        savedGroup.style.display = "none";
-        collectionGroup.style.display = "none";
-        bulkGroup.style.display = "none";
+      function hideHelp() {
+        document.getElementById("helpPopup").style.display = "none";
+      }
 
-        // Clear required attributes
-        groupUrlInput.required = false;
-        selectedGroupInput.required = false;
-        if (selectedCollectionInput) {
-          selectedCollectionInput.required = false;
-        }
-
-        // Show appropriate group based on selection
-        if (postingType === "single_manual") {
-          manualGroup.style.display = "block";
-          groupUrlInput.required = true;
-        } else if (postingType === "single_saved") {
-          savedGroup.style.display = "block";
-          selectedGroupInput.required = true;
-        } else if (postingType === "collection") {
-          collectionGroup.style.display = "block";
-          if (selectedCollectionInput) {
-            selectedCollectionInput.required = true;
-          }
-        } else if (postingType === "all_groups") {
-          bulkGroup.style.display = "block";
+      function updateFileName(input) {
+        const fileName = document.getElementById("fileName");
+        if (input.files && input.files[0]) {
+          fileName.textContent = `Selected: ${input.files[0].name}`;
+          fileName.style.color = "#68d391";
+        } else {
+          fileName.textContent = "";
         }
       }
 
-      document
-        .getElementById("groupPostForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      function toggleUrlInput() {
+        const postingType = document.getElementById("posting_type").value;
+        const manualGroup = document.getElementById("manualUrlGroup");
+        const savedGroup = document.getElementById("savedUrlGroup");
+        const collectionGroup = document.getElementById("collectionGroup");
+        const bulkGroup = document.getElementById("bulkInfoGroup");
 
-          const submitBtn = document.getElementById("submitBtn");
-          const statusMessage = document.getElementById("statusMessage");
-          const formData = new FormData(this);
+        // Hide all groups first
+        manualGroup.classList.remove("active");
+        savedGroup.classList.remove("active");
+        collectionGroup.classList.remove("active");
+        bulkGroup.classList.remove("active");
 
-          // Add the selected action based on posting type
-          const postingType = document.getElementById("posting_type").value;
-          if (postingType === "all_groups") {
-            formData.append("selected_action", "all_groups");
-          } else if (postingType === "collection") {
-            formData.append("selected_action", "collection");
-            const selectedCollection = document.getElementById(
-              "selected_collection"
-            ).value;
-            formData.append("collection_id", selectedCollection);
-          } else {
-            formData.append("selected_action", "single");
-            // Set the correct group URL based on posting type
-            if (postingType === "single_saved") {
-              const selectedUrl =
-                document.getElementById("selected_group_url").value;
-              formData.set("group_url", selectedUrl);
-            }
-          }
+        // Remove required attributes
+        document.getElementById("manual_url").removeAttribute("required");
+        document
+          .getElementById("selected_group_url")
+          .removeAttribute("required");
+        document
+          .getElementById("selected_collection")
+          .removeAttribute("required");
 
-          // Disable submit button
-          submitBtn.disabled = true;
-          submitBtn.textContent = "🔄 Starting...";
+        // Show appropriate group and set required attribute
+        switch (postingType) {
+          case "manual":
+            manualGroup.classList.add("active");
+            document.getElementById("manual_url").setAttribute("required", "");
+            break;
+          case "saved":
+            savedGroup.classList.add("active");
+            document
+              .getElementById("selected_group_url")
+              .setAttribute("required", "");
+            break;
+          case "collection":
+            collectionGroup.classList.add("active");
+            document
+              .getElementById("selected_collection")
+              .setAttribute("required", "");
+            break;
+          case "bulk":
+            bulkGroup.classList.add("active");
+            break;
+        }
+      }
 
-          // Hide previous status
-          statusMessage.style.display = "none";
+      function updateStatus(message, type = "info") {
+        const statusElement = document.getElementById("statusMessage");
+        statusElement.textContent = message;
+        statusElement.className = `status-message ${type}`;
+      }
 
-          fetch("/post-to-groups", {
-            method: "POST",
-            body: formData,
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              statusMessage.className = "status-message success";
-              statusMessage.textContent =
-                data.status || "Group posting started successfully!";
-              statusMessage.style.display = "block";
+      function updateProgress(percentage) {
+        const progressBar = document.getElementById("progressBar");
+        const progressFill = document.getElementById("progressFill");
+
+        if (percentage > 0) {
+          progressBar.style.display = "block";
+          progressFill.style.width = percentage + "%";
+        } else {
+          progressBar.style.display = "none";
+        }
+      }
+
+      function submitForm(event) {
+        event.preventDefault();
+
+        const submitBtn = document.getElementById("submitBtn");
+        const formData = new FormData(event.target);
+        const postingType = document.getElementById("posting_type").value;
+
+        // Add action based on posting type
+        switch (postingType) {
+          case "manual":
+            formData.append("action", "post_single_manual");
+            break;
+          case "saved":
+            formData.append("action", "post_single_saved");
+            break;
+          case "collection":
+            formData.append("action", "post_to_collection_groups");
+            break;
+          case "bulk":
+            formData.append("action", "post_to_multiple_groups");
+            break;
+        }
+
+        // Disable submit button and show processing status
+        submitBtn.disabled = true;
+        submitBtn.textContent = "🔄 Posting...";
+        updateStatus("Initializing posting process...", "processing");
+        updateProgress(10);
+
+        // Submit the form
+        fetch("/post-to-groups", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.text())
+          .then((result) => {
+            // Parse the result to show appropriate status
+            if (
+              result.includes("successfully") ||
+              result.includes("completed")
+            ) {
+              updateStatus("✅ Posting completed successfully!", "success");
+              updateProgress(100);
 
               // Reset form after success
-              this.reset();
-              toggleUrlInput(); // Reset visibility
-            })
-            .catch((error) => {
-              statusMessage.className = "status-message error";
-              statusMessage.textContent = "Error: " + error.message;
-              statusMessage.style.display = "block";
-            })
-            .finally(() => {
-              // Re-enable submit button
+              setTimeout(() => {
+                event.target.reset();
+                updateFileName(document.getElementById("media_file"));
+                toggleUrlInput();
+                updateStatus(
+                  "Ready to post! Choose your posting strategy above."
+                );
+                updateProgress(0);
+                submitBtn.disabled = false;
+                submitBtn.textContent = "📤 Start Posting";
+              }, 3000);
+            } else {
+              updateStatus(
+                "❌ Posting encountered issues. Check the results.",
+                "error"
+              );
+              updateProgress(0);
               submitBtn.disabled = false;
-              submitBtn.textContent = "🚀 Start Group Posting";
-            });
+              submitBtn.textContent = "📤 Start Posting";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            updateStatus(
+              "❌ Error occurred during posting. Please try again.",
+              "error"
+            );
+            updateProgress(0);
+            submitBtn.disabled = false;
+            submitBtn.textContent = "📤 Start Posting";
+          });
+      }
+
+      // Close popup when clicking outside
+      document
+        .getElementById("helpPopup")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            hideHelp();
+          }
         });
+
+      // Close popup with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          hideHelp();
+        }
+      });
 
       // File path validation
       document
-        .getElementById("media_file_path")
-        .addEventListener("blur", function () {
-          const filePath = this.value.trim();
-          if (
-            filePath &&
-            !filePath.match(/\.(jpg|jpeg|png|gif|mp4|mov|avi)$/i)
-          ) {
-            this.style.borderColor = "#ef4444";
-            this.title =
-              "Please enter a valid file path (jpg, png, gif, mp4, etc.)";
-          } else {
-            this.style.borderColor = "#d1d5db";
-            this.title = "";
+        .getElementById("media_file")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const validTypes = [
+              "image/jpeg",
+              "image/png",
+              "image/gif",
+              "video/mp4",
+              "video/avi",
+              "video/mov",
+            ];
+            if (!validTypes.includes(file.type)) {
+              updateStatus(
+                "❌ Please select a valid image or video file.",
+                "error"
+              );
+              e.target.value = "";
+              updateFileName(e.target);
+            }
           }
         });
     </script>

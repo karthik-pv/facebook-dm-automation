@@ -23,18 +23,44 @@ def home_page():
 @app.route("/add_user", methods=["GET", "POST"])
 def add_user_route():
     if request.method == "POST":
-        profile_urls = request.form.get("profile_urls", "").strip()
-        if profile_urls:
-            # Split by lines and process each URL
-            urls = [url.strip() for url in profile_urls.split("\n") if url.strip()]
-            for url in urls:
-                if url:  # Only add non-empty URLs
-                    print(url)
-                    supabase.add_url(url)
+        action = request.form.get("action")
+
+        if action == "delete_user":
+            user_id = request.form.get("user_id")
+            if user_id:
+                supabase.delete_user(int(user_id))
+                return redirect(url_for("add_user_route"))
+
+        # Handle single user addition
+        user_url = request.form.get("user_url")
+        user_name = request.form.get("user_name", "").strip()
+
+        # Handle bulk addition
+        bulk_urls = request.form.get("bulk_urls", "").strip()
+
+        if user_url:
+            # Single user addition
+            supabase.add_url(user_url, user_name if user_name else None)
+            return redirect(url_for("add_user_route"))
+        elif bulk_urls:
+            # Bulk addition - parse names from lines above URLs
+            lines = [line.strip() for line in bulk_urls.split("\n") if line.strip()]
+            i = 0
+            while i < len(lines):
+                current_line = lines[i]
+                if current_line.startswith("http"):
+                    # This is a URL
+                    url = current_line
+                    name = None
+                    # Check if previous line exists and is not a URL (could be a name)
+                    if i > 0 and not lines[i - 1].startswith("http"):
+                        name = lines[i - 1]
+                    supabase.add_url(url, name)
+                i += 1
             return redirect(url_for("add_user_route"))
 
-    urls = supabase.get_all_urls() or []
-    return render_template("add_user.html", urls=urls)
+    users = supabase.get_all_profile_urls_with_ids() or []
+    return render_template("add_user.html", users=users)
 
 
 @app.route("/manage-group-urls", methods=["GET", "POST"])
@@ -43,26 +69,38 @@ def manage_group_urls_route():
     if request.method == "POST":
         action = request.form.get("action")
 
-        if action == "add_urls":
+        if action == "add_urls" or not action:
             group_urls = request.form.get("group_urls", "").strip()
             if group_urls:
-                # Split by lines and process each URL
-                urls = [url.strip() for url in group_urls.split("\n") if url.strip()]
-                for url in urls:
+                # Parse names from lines above URLs
+                lines = [
+                    line.strip() for line in group_urls.split("\n") if line.strip()
+                ]
+                i = 0
+                while i < len(lines):
+                    current_line = lines[i]
                     if (
-                        url and "facebook.com/groups/" in url
-                    ):  # Validate it's a group URL
-                        print(f"Adding group URL: {url}")
-                        supabase.add_group_url(url)
+                        current_line.startswith("http")
+                        and "facebook.com/groups/" in current_line
+                    ):
+                        # This is a group URL
+                        url = current_line
+                        name = None
+                        # Check if previous line exists and is not a URL (could be a name)
+                        if i > 0 and not lines[i - 1].startswith("http"):
+                            name = lines[i - 1]
+                        print(f"Adding group URL: {url} with name: {name}")
+                        supabase.add_group_url(url, name)
+                    i += 1
                 return redirect(url_for("manage_group_urls_route"))
 
         elif action == "delete_url":
-            url_to_delete = request.form.get("url_to_delete")
-            if url_to_delete:
-                supabase.delete_group_url(url_to_delete)
+            url_id = request.form.get("url_id")
+            if url_id:
+                supabase.delete_group_url_by_id(int(url_id))
                 return redirect(url_for("manage_group_urls_route"))
 
-    group_urls = supabase.get_all_group_urls() or []
+    group_urls = supabase.get_all_group_urls_with_ids() or []
     return render_template("manage_group_urls.html", group_urls=group_urls)
 
 
@@ -122,13 +160,40 @@ def facebook_group_collections_route():
 def send_facebook_messages_route():
     if request.method == "POST":
         message = request.form.get("message")
-        selected_group_id = request.form.get("group_id")
+        recipient_type = request.form.get("recipient_type")
+        selected_user = request.form.get("selected_user")
+        selected_group = request.form.get("selected_group")
 
         if message:
-            # Determine if sending to all or specific group
-            if selected_group_id and selected_group_id != "all":
-                group_id = int(selected_group_id)
-                # Get group info
+            if recipient_type == "single_user" and selected_user:
+                # Send to single user
+                user_id = int(selected_user)
+                # Get user info for logging
+                users = supabase.get_all_profile_urls_with_ids()
+                user_name = None
+                for user in users:
+                    if user["id"] == user_id:
+                        user_name = user.get("name", user["url"])
+                        break
+
+                # Store message history
+                supabase.store_message_history(
+                    message, None, f"Single User: {user_name}"
+                )
+
+                # Start background thread for single user messaging
+                thread = threading.Thread(
+                    target=send_facebook_messages, args=(message, None, user_id)
+                )
+                thread.start()
+                return jsonify(
+                    {
+                        "status": f"Message sending started for user '{user_name}' in background."
+                    }
+                )
+            elif recipient_type == "group" and selected_group:
+                # Send to specific group
+                group_id = int(selected_group)
                 groups = supabase.get_all_groups()
                 group_name = None
                 for group in groups:
@@ -149,7 +214,7 @@ def send_facebook_messages_route():
                         "status": f"Message sending started for group '{group_name}' in background."
                     }
                 )
-            else:
+            elif recipient_type == "all_users":
                 # Send to all users
                 supabase.store_message_history(message, None, "All Users")
 
@@ -162,9 +227,10 @@ def send_facebook_messages_route():
                     {"status": "Message sending started for all users in background."}
                 )
 
-    # Get all groups for the dropdown
+    # Get all groups and users for the dropdowns
     groups = supabase.get_all_groups()
-    return render_template("send_message.html", groups=groups)
+    users = supabase.get_all_profile_urls_with_ids()
+    return render_template("send_message.html", groups=groups, users=users)
 
 
 @app.route("/groups", methods=["GET", "POST"])
@@ -343,7 +409,7 @@ def post_to_groups_route():
     )
 
 
-def send_facebook_messages(message, group_id=None):
+def send_facebook_messages(message, group_id=None, user_id=None):
     from playwright.sync_api import sync_playwright
     import time
     import random
@@ -374,8 +440,19 @@ def send_facebook_messages(message, group_id=None):
         except Exception as e:
             print(f"Could not send message: {e}")
 
-    # Get profile URLs
-    if group_id:
+    # Get profile URLs based on parameters
+    if user_id:
+        # Get single user URL
+        users = supabase.get_all_profile_urls_with_ids()
+        profile_urls = []
+        for user in users:
+            if user["id"] == user_id:
+                profile_urls = [user["url"]]
+                break
+        print(
+            f"Sending message to single user (ID: {user_id}). Found {len(profile_urls)} user."
+        )
+    elif group_id:
         profile_urls = supabase.get_urls_for_group(group_id)
         print(
             f"Sending message to group (ID: {group_id}). Found {len(profile_urls)} users."
@@ -385,7 +462,7 @@ def send_facebook_messages(message, group_id=None):
         print(f"Sending message to all users. Found {len(profile_urls)} users.")
 
     if not profile_urls:
-        print("No profile URLs found for the selected group/all users.")
+        print("No profile URLs found for the selected recipient.")
         return
 
     with sync_playwright() as p:
